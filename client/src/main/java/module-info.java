@@ -1,4 +1,4 @@
-module org.openjfx {
+module org.edf {
     requires javafx.controls;
     requires javafx.fxml;
     requires lombok;
