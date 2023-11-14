@@ -1,6 +1,6 @@
 module org.fhdmma.edf {
     requires javafx.controls;
-    requires javafx.fxml;
+    requires transitive javafx.graphics;
     requires lombok;
 
     exports org.fhdmma.edf;
