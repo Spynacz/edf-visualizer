@@ -1,4 +1,4 @@
-package org.edf;
+package org.fhdmma.edf;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

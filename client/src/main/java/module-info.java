@@ -1,7 +1,7 @@
-module org.edf {
+module org.fhdmma.edf {
     requires javafx.controls;
     requires javafx.fxml;
     requires lombok;
 
-    exports org.edf;
+    exports org.fhdmma.edf;
 }

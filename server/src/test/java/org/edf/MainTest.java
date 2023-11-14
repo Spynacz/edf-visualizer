@@ -1,4 +1,4 @@
-package org.edf;
+package org.fhdmma.edf;
 
 import static org.junit.Assert.assertTrue;
 

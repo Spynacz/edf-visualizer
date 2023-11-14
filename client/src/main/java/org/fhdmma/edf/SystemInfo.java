@@ -1,4 +1,4 @@
-package org.edf;
+package org.fhdmma.edf;
 
 public class SystemInfo {
 
