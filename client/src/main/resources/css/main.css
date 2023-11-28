@@ -1,0 +1,19 @@
+.leftbox {
+    -fx-border-color: #f00;
+    -fx-border-width: 5;
+}
+
+.rightbox {
+    -fx-border-color: #0f0;
+    -fx-border-width: 5;
+}
+
+.centerbox {
+    -fx-border-color: #00f;
+    -fx-border-width: 5;
+}
+
+.main-label {
+    -fx-font-size: 32px;
+    -fx-text-alignment: center;
+}
