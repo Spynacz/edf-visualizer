@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    static List<Task> tasks = new ArrayList<>();
+    static List<EDFTask> tasks = new ArrayList<>();
 
     @Override
     public void start(Stage stage) {
@@ -19,7 +19,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         for (int i = 0; i < 10; i++) {
-            tasks.add(new Task("Task " + i, i*2, i));
+            tasks.add(new EDFTask("Task " + i, i*2, i));
         }
         launch();
     }

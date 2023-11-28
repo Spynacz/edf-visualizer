@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Task {
+public class EDFTask {
     private String name;
     private int deadline;
     private int duration;

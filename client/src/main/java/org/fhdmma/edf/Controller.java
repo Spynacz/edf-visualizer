@@ -10,8 +10,8 @@ public class Controller {
 
     public Controller() {
         Model model = new Model();
-        this.viewBuilder = new ViewBuilder(model);
         this.interactor = new Interactor(model);
+        this.viewBuilder = new ViewBuilder(model, interactor::addTask, interactor::displayTask);
     }
 
     public Region getView() {

@@ -17,3 +17,8 @@
     -fx-font-size: 32px;
     -fx-text-alignment: center;
 }
+
+.task-entry {
+    -fx-border-width: 2;
+    -fx-border-color: #ff0;
+}

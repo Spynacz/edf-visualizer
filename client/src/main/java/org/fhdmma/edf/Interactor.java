@@ -7,5 +7,13 @@ public class Interactor {
     public Interactor(Model model) {
         this.model = model;
     }
+
+    public void addTask() {
+        System.out.println("Inside Interactor::addTask()");
+    }
+
+    public void displayTask() {
+        System.out.println("Inside Interactor::displayTask()");
+    }
 }
 
