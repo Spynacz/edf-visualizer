@@ -3,26 +3,24 @@ package org.fhdmma.edf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
 import javafx.util.Builder;
 
 public class ViewBuilder implements Builder<Region> {
 
     private final Model model;
     private final Runnable taskAdder;
-    private final Runnable taskDisplayer;
+    private final Consumer<Runnable> taskDisplayer;
 
-    public ViewBuilder(Model model, Runnable taskAdder, Runnable taskDisplayer) {
+    public ViewBuilder(Model model, Runnable taskAdder, Consumer<Runnable> taskDisplayer) {
         this.model = model;
         this.taskAdder = taskAdder;
         this.taskDisplayer = taskDisplayer;
@@ -80,7 +78,7 @@ public class ViewBuilder implements Builder<Region> {
         return tasks;
     }
 
-    private List<Node> setClientTasks(Runnable displayTask) {
+    private List<Node> setClientTasks(Consumer<Runnable> displayTask) {
         List<EDFTask> tasks = fetchClientTasks();
         List<Node> tasksGUI = new ArrayList<>();
         for (EDFTask t : tasks) {
@@ -94,17 +92,30 @@ public class ViewBuilder implements Builder<Region> {
             task.getStyleClass().add("task-entry");
 
             task.setOnMouseClicked(evt -> {
+                // a bit ugly, a better solution probably exists
                 for (Node t2 : tasksGUI) {
                     t2.setStyle("-fx-background-color: none");
                 }
                 task.setStyle("-fx-background-color: pink");
-                displayTask.run();
+                displayTask.accept(() -> {
+                    setRight(t);
+                });
             });
 
             tasksGUI.add(task);
         }
 
         return tasksGUI;
+    }
+
+    private Node setRight(EDFTask t) {
+        Label name = new Label(t.getName());
+        Label duration = new Label("Duration " + String.valueOf(t.getDuration()));
+        Label deadline = new Label("Deadline " + String.valueOf(t.getDeadline()));
+
+        VBox taskDetails = new VBox(duration, deadline);
+
+        return taskDetails;
     }
 
     private Node headingLabel(String string) {
