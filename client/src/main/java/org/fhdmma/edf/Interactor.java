@@ -9,11 +9,13 @@ public class Interactor {
     }
 
     public void addTask() {
-        System.out.println("Inside Interactor::addTask()");
+        // TODO: Add user task storage
+        EDFTask newTask = new EDFTask(model.getTitle(), model.getDeadline(), model.getExecutionTime());
+        System.out.println(newTask);
     }
 
     public void displayTask() {
-        System.out.println("Inside Interactor::displayTask()");
+        String title = model.getTitle();
+        System.out.println("Displaying details for task: " + title);
     }
 }
-

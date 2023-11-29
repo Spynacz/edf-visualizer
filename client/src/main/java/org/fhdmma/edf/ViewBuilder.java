@@ -5,14 +5,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Builder;
+import javafx.util.converter.NumberStringConverter;
 
 public class ViewBuilder implements Builder<Region> {
 
@@ -66,8 +73,37 @@ public class ViewBuilder implements Builder<Region> {
 
     private Node setAddTaskButton(Runnable addTask) {
         Button button = new Button("Add task");
-        button.setOnAction(evt -> addTask.run());
+        button.setOnAction(evt -> {
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+
+            HBox title = new HBox(6, new Label("Task name:"), boundTextField(model.titleProperty()));
+            HBox duration = new HBox(6, new Label("Task duration:"), boundIntegerField(model.executionTimeProperty()));
+            HBox deadline = new HBox(6, new Label("Task deadline:"), boundIntegerField(model.deadlineProperty()));
+            Button confirm = new Button("Confirm");
+            confirm.setOnAction(evt2 -> {
+                addTask.run();
+            });
+
+            VBox vbox = new VBox(title, duration, deadline, confirm);
+
+            Scene dialogScene = new Scene(vbox, 400, 300);
+            dialog.setScene(dialogScene);
+            dialog.show();
+        });
         return button;
+    }
+
+    private Node boundTextField(StringProperty boundProperty) {
+        TextField textField = new TextField();
+        textField.textProperty().bindBidirectional(boundProperty);
+        return textField;
+    }
+
+    private Node boundIntegerField(IntegerProperty boundProperty) {
+        TextField textField = new TextField();
+        textField.textProperty().bindBidirectional(boundProperty, new NumberStringConverter());
+        return textField;
     }
 
     private List<EDFTask> fetchClientTasks() {
