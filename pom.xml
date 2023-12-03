@@ -7,9 +7,13 @@
 
     <groupId>org.fhdmma</groupId>
     <artifactId>edf-visualizer</artifactId>
-    <version>0.0.1</version>
+    <version>${revision}</version>
 
     <name>edf-visualizer</name>
+
+    <properties>
+        <revision>1.0-SNAPSHOT</revision>
+    </properties>
 
     <packaging>pom</packaging>
 

@@ -7,14 +7,13 @@
 
     <groupId>org.fhdmma</groupId>
     <artifactId>edf-visualizer-server</artifactId>
-    <version>0.0.1</version>
 
     <name>edf-visualizer-server</name>
 
     <parent>
         <artifactId>edf-visualizer</artifactId>
         <groupId>org.fhdmma</groupId>
-        <version>0.0.1</version>
+        <version>${revision}</version>
     </parent>
 
     <properties>
