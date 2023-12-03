@@ -43,3 +43,6 @@ buildNumber.properties
 
 .settings
 .factorypath
+#cscope, ctags
+tags
+cscope.out

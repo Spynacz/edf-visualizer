@@ -7,9 +7,13 @@
 
     <groupId>org.fhdmma</groupId>
     <artifactId>edf-visualizer</artifactId>
-    <version>0.0.1</version>
+    <version>${revision}</version>
 
     <name>edf-visualizer</name>
+
+    <properties>
+        <revision>1.0-SNAPSHOT</revision>
+    </properties>
 
     <packaging>pom</packaging>
 
@@ -33,6 +37,7 @@
     </dependencies>
 
     <build>
+      <defaultGoal>compile</defaultGoal>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -47,6 +52,11 @@
                             </annotationProcessorPath>
                         </annotationProcessorPaths>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
