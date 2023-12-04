@@ -23,12 +23,12 @@ import javafx.util.converter.NumberStringConverter;
 
 public class ViewBuilder implements Builder<Region> {
 
-    private final Model model;
-    private final Runnable taskAdder;
+    private final EDFTaskModel edfTaskModel;
+    private final Consumer<Runnable> taskAdder;
     private final Consumer<Runnable> taskDisplayer;
 
-    public ViewBuilder(Model model, Runnable taskAdder, Consumer<Runnable> taskDisplayer) {
-        this.model = model;
+    public ViewBuilder(EDFTaskModel model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer) {
+        this.edfTaskModel = model;
         this.taskAdder = taskAdder;
         this.taskDisplayer = taskDisplayer;
     }
@@ -52,13 +52,6 @@ public class ViewBuilder implements Builder<Region> {
         return vbox;
     }
 
-    private Node createRight() {
-        VBox vbox = new VBox(5);
-        vbox.setMinWidth(200);
-        vbox.getStyleClass().add("rightbox");
-        return vbox;
-    }
-
     private Node createLeft() {
         VBox vbox = new VBox();
         vbox.setMinWidth(200);
@@ -71,18 +64,27 @@ public class ViewBuilder implements Builder<Region> {
         return vbox;
     }
 
-    private Node setAddTaskButton(Runnable addTask) {
+    private Node createRight() {
+        VBox vbox = new VBox(5);
+        vbox.setMinWidth(200);
+        vbox.getStyleClass().add("rightbox");
+        return vbox;
+    }
+
+    private Node setAddTaskButton(Consumer<Runnable> addTask) {
         Button button = new Button("Add task");
         button.setOnAction(evt -> {
             final Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
 
-            HBox title = new HBox(6, new Label("Task name:"), boundTextField(model.titleProperty()));
-            HBox duration = new HBox(6, new Label("Task duration:"), boundIntegerField(model.executionTimeProperty()));
-            HBox deadline = new HBox(6, new Label("Task deadline:"), boundIntegerField(model.deadlineProperty()));
+            HBox title = new HBox(6, new Label("Task name:"), boundTextField(edfTaskModel.titleProperty()));
+            HBox duration = new HBox(6, new Label("Task duration:"), boundIntegerField(edfTaskModel.executionTimeProperty()));
+            HBox deadline = new HBox(6, new Label("Task deadline:"), boundIntegerField(edfTaskModel.deadlineProperty()));
             Button confirm = new Button("Confirm");
             confirm.setOnAction(evt2 -> {
-                addTask.run();
+                addTask.accept(() -> {
+                    // update tasks list somehow
+                });
             });
 
             VBox vbox = new VBox(title, duration, deadline, confirm);
@@ -127,6 +129,7 @@ public class ViewBuilder implements Builder<Region> {
             HBox task = new HBox(name, times);
             task.getStyleClass().add("task-entry");
 
+            // highlight selected task and show details
             task.setOnMouseClicked(evt -> {
                 // a bit ugly, a better solution probably exists
                 for (Node t2 : tasksGUI) {
@@ -149,7 +152,7 @@ public class ViewBuilder implements Builder<Region> {
         Label duration = new Label("Duration " + String.valueOf(t.getDuration()));
         Label deadline = new Label("Deadline " + String.valueOf(t.getDeadline()));
 
-        VBox taskDetails = new VBox(duration, deadline);
+        VBox taskDetails = new VBox(name, duration, deadline);
 
         return taskDetails;
     }

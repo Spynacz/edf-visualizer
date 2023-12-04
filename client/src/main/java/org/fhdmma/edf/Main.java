@@ -18,10 +18,12 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 10; i++) {
-            tasks.add(new EDFTask("Task " + i, i*2, i));
-        }
         launch();
+    }
+
+    public static void addTask(EDFTask newTask) {
+        tasks.add(newTask);
+        // System.out.println(tasks);
     }
 
 }

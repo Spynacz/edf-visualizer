@@ -10,24 +10,40 @@ public class Controller {
     private Interactor interactor;
 
     public Controller() {
-        Model model = new Model();
-        this.interactor = new Interactor(model);
-        this.viewBuilder = new ViewBuilder(model, interactor::addTask, this::displayTask);
+        EDFTaskModel edfTaskModel = new EDFTaskModel();
+        this.interactor = new Interactor(edfTaskModel);
+        this.viewBuilder = new ViewBuilder(edfTaskModel, this::addTask, this::displayTask);
     }
 
-    private void displayTask(Runnable someRunnable) {
-        Task<Void> someTask = new Task<>() {
+    private void displayTask(Runnable postFetchGUIUpdate) {
+        Task<Void> getTaskTask = new Task<>() {
             @Override
             protected Void call() {
-                interactor.displayTask();
+                interactor.getTaskDetails();
                 return null;
             }
         };
-        someTask.setOnSucceeded(evt -> {
-            someRunnable.run();
+        getTaskTask.setOnSucceeded(evt -> {
+            postFetchGUIUpdate.run();
         });
-        Thread someThread = new Thread(someTask);
-        someThread.start();
+        Thread displayTaskThread = new Thread(getTaskTask);
+        displayTaskThread.start();
+    }
+
+    private void addTask(Runnable postAddGUIUpdate) {
+        Task<Void> addTaskTask = new Task<>() {
+            @Override
+            protected Void call() {
+                interactor.addTask();
+                return null;
+            }
+        };
+        addTaskTask.setOnSucceeded(evt -> {
+            interactor.updateTaskListModel();
+            postAddGUIUpdate.run();
+        });
+        Thread addTaskThread = new Thread(addTaskTask);
+        addTaskThread.start();
     }
 
     public Region getView() {
