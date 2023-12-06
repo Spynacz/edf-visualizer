@@ -46,3 +46,5 @@ buildNumber.properties
 #cscope, ctags
 tags
 cscope.out
+#vim
+.vimrc
