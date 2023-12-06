@@ -10,7 +10,7 @@ public class Controller {
     private Interactor interactor;
 
     public Controller() {
-        EDFTaskModel edfTaskModel = new EDFTaskModel();
+        Model edfTaskModel = new Model();
         this.interactor = new Interactor(edfTaskModel);
         this.viewBuilder = new ViewBuilder(edfTaskModel, this::addTask, this::displayTask);
     }

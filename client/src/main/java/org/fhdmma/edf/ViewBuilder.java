@@ -1,7 +1,5 @@
 package org.fhdmma.edf;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -11,11 +9,14 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Builder;
@@ -23,12 +24,12 @@ import javafx.util.converter.NumberStringConverter;
 
 public class ViewBuilder implements Builder<Region> {
 
-    private final EDFTaskModel edfTaskModel;
+    private final Model model;
     private final Consumer<Runnable> taskAdder;
     private final Consumer<Runnable> taskDisplayer;
 
-    public ViewBuilder(EDFTaskModel model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer) {
-        this.edfTaskModel = model;
+    public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer) {
+        this.model = model;
         this.taskAdder = taskAdder;
         this.taskDisplayer = taskDisplayer;
     }
@@ -56,8 +57,7 @@ public class ViewBuilder implements Builder<Region> {
         VBox vbox = new VBox();
         vbox.setMinWidth(200);
 
-        vbox.getChildren().addAll(setClientTasks(taskDisplayer));
-
+        vbox.getChildren().add(setClientTasks(taskDisplayer));
         vbox.getChildren().add(setAddTaskButton(taskAdder));
 
         vbox.getStyleClass().add("leftbox");
@@ -67,8 +67,58 @@ public class ViewBuilder implements Builder<Region> {
     private Node createRight() {
         VBox vbox = new VBox(5);
         vbox.setMinWidth(200);
+
+        // vbox.getChildren().add(setTaskDetails(null));
+
         vbox.getStyleClass().add("rightbox");
         return vbox;
+    }
+
+    private Node setClientTasks(Consumer<Runnable> displayTask) {
+        ListView<EDFTask> listView = new ListView<>();
+        listView.setItems(model.getTaskList());
+
+        listView.setCellFactory(lv -> {
+            return new ListCell<EDFTask>() {
+                private HBox content;
+                private Text name;
+                private Text deadline;
+                private Text duration;
+
+                {
+                    name = new Text();
+                    deadline = new Text();
+                    duration = new Text();
+                    VBox vBox = new VBox(deadline, duration);
+                    content = new HBox(name, vBox);
+                }
+
+                @Override
+                protected void updateItem(EDFTask item, boolean empty) {
+                    if (item != null && !empty) {
+                        name.setText(item.getName());
+                        deadline.setText("Deadline: " + item.getDeadline());
+                        duration.setText("Duration: " + item.getDuration());
+                        setGraphic(content);
+                    } else {
+                        setGraphic(null);
+                    }
+                }
+            };
+        });
+
+        listView.setOnMouseClicked(evt -> {
+            displayTask.accept(() -> setTaskDetails(listView.getSelectionModel().getSelectedItem()));
+        });
+
+        return listView;
+    }
+
+    private Node setTaskDetails(EDFTask selectedItem) {
+        Label name = new Label(selectedItem.getName());
+        Label duration = new Label(String.valueOf(selectedItem.getDuration()));
+        Label deadline = new Label(String.valueOf(selectedItem.getDeadline()));
+        return new VBox(name, duration, deadline);
     }
 
     private Node setAddTaskButton(Consumer<Runnable> addTask) {
@@ -77,14 +127,14 @@ public class ViewBuilder implements Builder<Region> {
             final Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
 
-            HBox title = new HBox(6, new Label("Task name:"), boundTextField(edfTaskModel.titleProperty()));
-            HBox duration = new HBox(6, new Label("Task duration:"), boundIntegerField(edfTaskModel.executionTimeProperty()));
-            HBox deadline = new HBox(6, new Label("Task deadline:"), boundIntegerField(edfTaskModel.deadlineProperty()));
+            HBox title = new HBox(6, new Label("Task name:"), boundTextField(model.titleProperty()));
+            HBox duration = new HBox(6, new Label("Task duration:"),
+                    boundIntegerField(model.executionTimeProperty()));
+            HBox deadline = new HBox(6, new Label("Task deadline:"),
+                    boundIntegerField(model.deadlineProperty()));
             Button confirm = new Button("Confirm");
             confirm.setOnAction(evt2 -> {
-                addTask.accept(() -> {
-                    // update tasks list somehow
-                });
+                addTask.accept(() -> dialog.close());
             });
 
             VBox vbox = new VBox(title, duration, deadline, confirm);
@@ -106,45 +156,6 @@ public class ViewBuilder implements Builder<Region> {
         TextField textField = new TextField();
         textField.textProperty().bindBidirectional(boundProperty, new NumberStringConverter());
         return textField;
-    }
-
-    private List<EDFTask> fetchClientTasks() {
-        List<EDFTask> tasks = new ArrayList<>();
-        for (EDFTask t : Main.tasks) {
-            tasks.add(t);
-        }
-        return tasks;
-    }
-
-    private List<Node> setClientTasks(Consumer<Runnable> displayTask) {
-        List<EDFTask> tasks = fetchClientTasks();
-        List<Node> tasksGUI = new ArrayList<>();
-        for (EDFTask t : tasks) {
-            Label name = new Label(t.getName());
-            Label duration = new Label("Duration " + String.valueOf(t.getDuration()));
-            Label deadline = new Label("Deadline " + String.valueOf(t.getDeadline()));
-
-            VBox times = new VBox(duration, deadline);
-
-            HBox task = new HBox(name, times);
-            task.getStyleClass().add("task-entry");
-
-            // highlight selected task and show details
-            task.setOnMouseClicked(evt -> {
-                // a bit ugly, a better solution probably exists
-                for (Node t2 : tasksGUI) {
-                    t2.setStyle("-fx-background-color: none");
-                }
-                task.setStyle("-fx-background-color: pink");
-                displayTask.accept(() -> {
-                    setRight(t);
-                });
-            });
-
-            tasksGUI.add(task);
-        }
-
-        return tasksGUI;
     }
 
     private Node setRight(EDFTask t) {
