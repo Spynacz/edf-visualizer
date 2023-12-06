@@ -46,3 +46,10 @@ buildNumber.properties
 #cscope, ctags
 tags
 cscope.out
+# maven wrapper
+.mvn
+mvnw
+mvnw.cmd
+
+.idea
+
