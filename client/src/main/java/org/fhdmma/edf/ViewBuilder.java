@@ -95,6 +95,7 @@ public class ViewBuilder implements Builder<Region> {
 
                 @Override
                 protected void updateItem(EDFTask item, boolean empty) {
+                    super.updateItem(item, empty);
                     if (item != null && !empty) {
                         name.setText(item.getName());
                         deadline.setText("Deadline: " + item.getDeadline());
