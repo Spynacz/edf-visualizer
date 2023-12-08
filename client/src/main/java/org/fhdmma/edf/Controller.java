@@ -12,18 +12,19 @@ public class Controller {
     public Controller() {
         Model edfTaskModel = new Model();
         this.interactor = new Interactor(edfTaskModel);
-        this.viewBuilder = new ViewBuilder(edfTaskModel, this::addTask, this::displayTask);
+        this.viewBuilder = new ViewBuilder(edfTaskModel, this::addTask, this::displayTaskDetails);
     }
 
-    private void displayTask(Runnable postFetchGUIUpdate) {
+    private void displayTaskDetails(Runnable postFetchGUIUpdate) {
         Task<Void> getTaskTask = new Task<>() {
             @Override
             protected Void call() {
-                interactor.getTaskDetails();
+                interactor.getSelectedTaskDetails();
                 return null;
             }
         };
         getTaskTask.setOnSucceeded(evt -> {
+            interactor.updateSelectedModel();
             postFetchGUIUpdate.run();
         });
         Thread displayTaskThread = new Thread(getTaskTask);

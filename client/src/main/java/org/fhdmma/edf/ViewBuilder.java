@@ -14,6 +14,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -26,12 +27,12 @@ public class ViewBuilder implements Builder<Region> {
 
     private final Model model;
     private final Consumer<Runnable> taskAdder;
-    private final Consumer<Runnable> taskDisplayer;
+    private final Consumer<Runnable> taskDetailsDisplayer;
 
     public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer) {
         this.model = model;
         this.taskAdder = taskAdder;
-        this.taskDisplayer = taskDisplayer;
+        this.taskDetailsDisplayer = taskDisplayer;
     }
 
     @Override
@@ -57,7 +58,9 @@ public class ViewBuilder implements Builder<Region> {
         VBox vbox = new VBox();
         vbox.setMinWidth(200);
 
-        vbox.getChildren().add(setClientTasks(taskDisplayer));
+        vbox.getChildren().add(setClientTasks(taskDetailsDisplayer));
+        VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
+
         vbox.getChildren().add(setAddTaskButton(taskAdder));
 
         vbox.getStyleClass().add("leftbox");
@@ -68,13 +71,13 @@ public class ViewBuilder implements Builder<Region> {
         VBox vbox = new VBox(5);
         vbox.setMinWidth(200);
 
-        // vbox.getChildren().add(setTaskDetails(null));
+        vbox.getChildren().add(setTaskDetails());
 
         vbox.getStyleClass().add("rightbox");
         return vbox;
     }
 
-    private Node setClientTasks(Consumer<Runnable> displayTask) {
+    private Node setClientTasks(Consumer<Runnable> displayTaskDetails) {
         ListView<EDFTask> listView = new ListView<>();
         listView.setItems(model.getTaskList());
 
@@ -109,16 +112,25 @@ public class ViewBuilder implements Builder<Region> {
         });
 
         listView.setOnMouseClicked(evt -> {
-            displayTask.accept(() -> setTaskDetails(listView.getSelectionModel().getSelectedItem()));
+            EDFTask t = listView.getSelectionModel().getSelectedItem();
+            if (t != null) {
+                model.setSelectedTask(t);
+                displayTaskDetails.accept(() -> {
+                });
+            }
         });
 
         return listView;
     }
 
-    private Node setTaskDetails(EDFTask selectedItem) {
-        Label name = new Label(selectedItem.getName());
-        Label duration = new Label(String.valueOf(selectedItem.getDuration()));
-        Label deadline = new Label(String.valueOf(selectedItem.getDeadline()));
+    private Node setTaskDetails() {
+        Label name = new Label();
+        name.textProperty().bind(model.selectedTitleProperty());
+        Label duration = new Label();
+        duration.textProperty().bind(model.selectedDurationProperty());
+        Label deadline = new Label();
+        deadline.textProperty().bind(model.selectedDeadlineProperty());
+
         return new VBox(name, duration, deadline);
     }
 
@@ -130,7 +142,7 @@ public class ViewBuilder implements Builder<Region> {
 
             HBox title = new HBox(6, new Label("Task name:"), boundTextField(model.titleProperty()));
             HBox duration = new HBox(6, new Label("Task duration:"),
-                    boundIntegerField(model.executionTimeProperty()));
+                    boundIntegerField(model.durationProperty()));
             HBox deadline = new HBox(6, new Label("Task deadline:"),
                     boundIntegerField(model.deadlineProperty()));
             Button confirm = new Button("Confirm");
@@ -157,16 +169,6 @@ public class ViewBuilder implements Builder<Region> {
         TextField textField = new TextField();
         textField.textProperty().bindBidirectional(boundProperty, new NumberStringConverter());
         return textField;
-    }
-
-    private Node setRight(EDFTask t) {
-        Label name = new Label(t.getName());
-        Label duration = new Label("Duration " + String.valueOf(t.getDuration()));
-        Label deadline = new Label("Deadline " + String.valueOf(t.getDeadline()));
-
-        VBox taskDetails = new VBox(name, duration, deadline);
-
-        return taskDetails;
     }
 
     private Node headingLabel(String string) {
