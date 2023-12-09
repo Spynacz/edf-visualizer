@@ -2,7 +2,7 @@ package org.fhdmma.edf;
 import java.util.List;
 import java.util.LinkedList;
 
-public class TimeFrame 
+public class TimeFrame
 {
     enum State {
         DONE,
@@ -10,6 +10,7 @@ public class TimeFrame
         WAITING
     };
 
+    //TODO: Use task ids instead of indexes in Lists
     private int id;
     private List<Task> tasks;
     private List<Integer> nextPeriod;
