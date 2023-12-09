@@ -2,15 +2,19 @@ package org.fhdmma.edf;
 
 public class Task 
 {
+    public int id;
     public int duration;
     public int period;
 
-    public Task(int d, int p) {
+    public Task(int i, int d, int p) {
         duration = d;
         period = p;
+        id = i;
     }
 
     public String toString() {
-        return "{ duration: " + duration + ", period: " + period + " }";
+        return "{ id: " + id + 
+            ", duration: " + duration + 
+            ", period: " + period + " }";
     }
 }

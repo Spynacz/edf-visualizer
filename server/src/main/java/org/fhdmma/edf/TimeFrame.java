@@ -10,6 +10,7 @@ public class TimeFrame
         WAITING
     };
 
+    private int id;
     private List<Task> tasks;
     private List<Integer> nextPeriod;
     private List<State> states;
@@ -17,6 +18,7 @@ public class TimeFrame
     private int left;
 
     TimeFrame(List<Task> t) {
+        id = 0;
         nextPeriod = new LinkedList<>();
         states = new LinkedList<>();
         tasks = t;
@@ -28,6 +30,7 @@ public class TimeFrame
     }
 
     TimeFrame(TimeFrame tf) {
+        id = tf.id+1;
         nextPeriod = new LinkedList<>();
         states = new LinkedList<>();
         tasks = tf.tasks;
@@ -61,6 +64,12 @@ public class TimeFrame
         }
     }
 
+    public int getTimeLeft() { return left; }
+
+    public int getId() { return id; }
+
+    public int getCurrentTask() { return current; }
+
     public String toString() {
         return "{ tasks: " + tasks + ", states: " + states + ", nextPeriod: " +
             nextPeriod + ", left: " + left + " }";
@@ -82,4 +91,5 @@ public class TimeFrame
         }
         return min_index;
     }
+
 }
