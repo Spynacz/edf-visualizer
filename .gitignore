@@ -48,3 +48,5 @@ tags
 cscope.out
 #vim
 .vimrc
+server/.vimrc
+client/.vimrc
