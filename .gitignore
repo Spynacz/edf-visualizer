@@ -56,3 +56,5 @@ mvnw
 mvnw.cmd
 .idea
 
+# vscode
+.vscode
