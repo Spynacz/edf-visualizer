@@ -1,6 +1,7 @@
 package org.fhdmma.edf;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,14 +14,26 @@ public class Database {
         connection = DriverManager.getConnection("jdbc:sqlite:server.db");
         statement = connection.createStatement();
         statement.setQueryTimeout(30);
-        statement.executeUpdate("drop table if exists task");
-        statement.executeUpdate("drop table if exists timeframe");
-        statement.executeUpdate("create table task " +
+        statement.executeUpdate("DROP TABLE IF EXISTS task");
+        statement.executeUpdate("DROP TABLE IF EXISTS timeframe");
+        statement.executeUpdate("DROP TABLE IF EXISTS users");
+
+        statement.executeUpdate("CREATE TABLE users"+
                 "(id INTEGER PRIMARY KEY, "+
-                "duration INTEGER, period INTEGER)");
-        statement.executeUpdate("create table timeframe " +
+                "username TEXT, "+
+                "password TEXT);");
+        statement.executeUpdate("CREATE TABLE task" +
                 "(id INTEGER PRIMARY KEY, "+
-                "activetask INTEGER, timeleft INTEGER)");
+                "duration INTEGER, "+
+                "period INTEGER, "+
+                "user_id INTEGER, "+
+                "FOREIGN KEY(user_id) REFERENCES users(id));");
+        statement.executeUpdate("CREATE TABLE timeframe" +
+                "(id INTEGER PRIMARY KEY, "+
+                "activetask INTEGER, "+
+                "timeleft INTEGER, "+
+                "task_id INTEGER, "+
+                "FOREIGN KEY(task_id) REFERENCES task(id));");
     }
 
     public static void addTask(Task t) throws SQLException {
