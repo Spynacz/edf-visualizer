@@ -1,5 +1,8 @@
 package org.fhdmma.edf;
 
+import lombok.Data;
+
+@Data
 public class Task 
 {
     public int id;
