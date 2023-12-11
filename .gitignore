@@ -55,5 +55,10 @@ client/.vimrc
 mvnw
 mvnw.cmd
 .idea
+
+
 # database
 server/server.db
+
+# vscode
+.vscode
