@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -124,14 +125,9 @@ public class ViewBuilder implements Builder<Region> {
     }
 
     private Node setTaskDetails() {
-        Label name = new Label();
-        name.textProperty().bind(model.selectedTitleProperty());
-        Label duration = new Label();
-        duration.textProperty().bind(model.selectedDurationProperty());
-        Label deadline = new Label();
-        deadline.textProperty().bind(model.selectedDeadlineProperty());
-
-        return new VBox(name, duration, deadline);
+        return new VBox(boundLabel(model.selectedTitleProperty()),
+                boundLabel(model.selectedDurationProperty()),
+                boundLabel(model.selectedDeadlineProperty()));
     }
 
     private Node setAddTaskButton(Consumer<Runnable> addTask) {
@@ -169,6 +165,12 @@ public class ViewBuilder implements Builder<Region> {
         TextField textField = new TextField();
         textField.textProperty().bindBidirectional(boundProperty, new NumberStringConverter());
         return textField;
+    }
+
+    private Node boundLabel(StringProperty boundProperty) {
+        Label label = new Label();
+        label.textProperty().bind(boundProperty);
+        return label;
     }
 
     private Node headingLabel(String string) {
