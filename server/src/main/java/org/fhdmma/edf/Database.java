@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.management.InvalidAttributeValueException;
+import javax.management.RuntimeErrorException;
 
 public class Database {
     static Connection connection;
@@ -151,27 +152,36 @@ public class Database {
 
     public static void printTasks() throws SQLException {
         Task t;
-        try(ResultSet rs = statement.executeQuery("select * from task")) {
+        try(ResultSet rs = statement.executeQuery("SELECT * FROM task")) {
             while(rs.next()) {
-                t = new Task(rs.getInt("id"),
-                        rs.getInt("duration"),
-                        rs.getInt("period"));
+                t = new Task(
+                    rs.getInt("id"),
+                    rs.getInt("duration"),
+                    rs.getInt("period"));
+
                 System.out.println(t);
             }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static void printTimeFrames() throws SQLException {
         int curr;
         String active;
-        try (ResultSet rs = statement.executeQuery("select * from timeframe")) {
+        try (ResultSet rs = statement.executeQuery("SELECT * FROM timeframe")) {
             while(rs.next()) {
                 curr = rs.getInt("activeTask");
                 active = ((rs.wasNull())?"null":String.valueOf(curr));
-                System.out.println("{ id: "  + rs.getInt("id") +
-                        ", activeTask: " + active +
-                        ", timeleft: " + rs.getInt("timeleft") + " }");
+                System.out.println(
+                    "{ id: "  + rs.getInt("id") +
+                    ", activeTask: " + active +
+                    ", timeleft: " + rs.getInt("timeleft") + " }");
             }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
