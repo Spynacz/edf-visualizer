@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -20,7 +21,7 @@ public class Database {
             statement.executeUpdate("DROP TABLE IF EXISTS users");
             statement.executeUpdate("DROP TABLE IF EXISTS tasks");
             statement.executeUpdate("DROP TABLE IF EXISTS timeframes");
-            statement.executeUpdate("DROP TABLE IF EXISTS timeframes_tasks");
+            statement.executeUpdate("DROP TABLE IF EXISTS tasks_timeframes");
             statement.executeUpdate("DROP TABLE IF EXISTS periods");
             statement.executeUpdate("DROP TABLE IF EXISTS states");
             statement.executeUpdate("DROP TABLE IF EXISTS actions");
@@ -39,7 +40,7 @@ public class Database {
                     "(id INTEGER PRIMARY KEY, "+
                     "active_task INTEGER, "+
                     "time_left INTEGER);");
-            statement.executeUpdate("CREATE TABLE timeframes_tasks" +
+            statement.executeUpdate("CREATE TABLE tasks_timeframes" +
                     "(timeframe_id INTEGER," +
                     "task_id INTEGER," +
                     "PRIMARY KEY(timeframe_id, task_id)," +
@@ -115,7 +116,7 @@ public class Database {
     }
 
     // TODO: Add user_id
-    public static Task addTask(int duration, int period) {
+    public static Task addTask(int timeframe_id, int duration, int period) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO tasks(duration, period) VALUES(?, ?)",
                                                                Statement.RETURN_GENERATED_KEYS);
@@ -126,16 +127,27 @@ public class Database {
 
             try {
                 // TODO: Race condition possible.
-                ps = connection.prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ?");
+                ps = connection.prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ? LIMIT 1");
                 ps.setInt(1, duration);
                 ps.setInt(2, period);
 
                 ResultSet rs = ps.executeQuery();
 
-                if (rs.next()) {
-                    return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+                if (!rs.next()) {
+                    return null;
                 }
-                return null;
+
+                Task task = new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+                try {
+                    ps = connection.prepareStatement("INSERT INTO tasks_timeframes VALUES(?, ?)");
+                    ps.setInt(1, task.getId());
+                    ps.setInt(2, timeframe_id);
+                    ps.executeUpdate();
+                }
+                catch(SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
             }
             catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -150,7 +162,8 @@ public class Database {
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
             ResultSet rs = ps.executeQuery();
-
+            
+            // TODO: Make it return all values - not nulls
             if (rs.next()) {
                 return new TimeFrame(
                     rs.getInt("id"),
