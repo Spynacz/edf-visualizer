@@ -52,7 +52,6 @@ public class Main
             Database.printTasks();
         } catch (SQLException e) {
             System.out.println(e);
-
         }
         return l;
     }
