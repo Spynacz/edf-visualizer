@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.management.InvalidAttributeValueException;
+
 public class Database {
     static Connection connection;
     static Statement statement;
@@ -46,15 +48,14 @@ public class Database {
         }
         catch (SQLException e) {
             e.printStackTrace();
-            return new User();
+            return null;
         }
 
     }
 
-    public static Boolean userRegister(String username, String password1, String password2) throws SQLException {
+    public static Boolean userRegister(String username, String password1, String password2) throws InvalidAttributeValueException, SQLException {
         if (!password2.equals(password1)) {
-            System.out.println("Passwords are not the same!");
-            return false;
+            throw new InvalidAttributeValueException("Passwords are not the same!");
         }
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT username FROM users WHERE username = ?;");
@@ -62,9 +63,8 @@ public class Database {
 
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {     
-                System.out.println("Username is taken.");
-                return false;
+            if (rs.next()) {     
+                throw new InvalidAttributeValueException("Username is taken.");
             }
             System.out.println("Jest git.");
 
@@ -81,9 +81,35 @@ public class Database {
         }
     }
 
-    public static void addTask(Task t) throws SQLException {
-        statement.executeUpdate("insert into task values(" +
-                t.id + ", " + t.duration + ", " + t.period + ");");
+    public static Task addTask(int duration, int period) throws SQLException {
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO task(duration, period) VALUES(?, ?)",
+                                                               Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, duration);
+            ps.setInt(2, period);
+
+            ps.executeUpdate();
+
+            try {
+                // TODO: Race condition possible.
+                ps = connection.prepareStatement("SELECT id, duration, period FROM task WHERE duration = ? AND period = ?");
+                ps.setInt(1, duration);
+                ps.setInt(2, period);
+
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+                }
+                return null;
+            }
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void addTimeFrame(TimeFrame t) throws SQLException {
