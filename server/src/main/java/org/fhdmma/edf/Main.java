@@ -9,22 +9,16 @@ public class Main
     public static void main(String[] args) {
         tfl = new LinkedList<TimeFrame>();
         TimeFrame tf = new TimeFrame(getTasks());
-        try {
-            for(int i=0;i<29;i++) {
-                tfl.add(tf);
-                Database.addTimeFrame(tf);
-                tf = new TimeFrame(tf);
+        for(int i=0;i<29;i++) {
+            tfl.add(tf);
+            if(i==17) {
+                tf.addTask(new Task(3, 1, 4));
             }
-            Database.printTimeFrames();
-        } catch (SQLException e) {
-            System.out.println(e);
-        } finally {
-            try {
-                Database.disconnect();
-            } catch (SQLException e) {
-                System.out.println(e);
+            if(i==20) {
+                tf.removeTask(3);
             }
-
+            System.out.println(tf);
+            tf = new TimeFrame(tf);
         }
     }
 
@@ -34,13 +28,13 @@ public class Main
         int task_number = 0;
         int duration;
         int period;
+        Scanner s = new Scanner(System.in, "UTF-8");
         try {
             Database.connect();
-            Scanner s = new Scanner(System.in);
             System.out.println("Task number:");
             task_number = s.nextInt();
             for(int i=0;i<task_number;i++) {
-                System.out.printf("Task number %d:\n", i);
+                System.out.printf("Task number %d:%n", i);
                 System.out.println("Duration:");
                 duration = s.nextInt();
                 System.out.println("Period:");
@@ -53,6 +47,7 @@ public class Main
         } catch (SQLException e) {
             System.out.println(e);
         }
+        s.close();
         return l;
     }
 }

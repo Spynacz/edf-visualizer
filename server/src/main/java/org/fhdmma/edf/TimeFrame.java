@@ -2,6 +2,8 @@ package org.fhdmma.edf;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.Queue;
+import lombok.AllArgsConstructor;
 
 public class TimeFrame
 {
@@ -10,12 +12,17 @@ public class TimeFrame
         RUNNING,
         WAITING
     };
+    private interface Action {}
+    @AllArgsConstructor
+    static public class AddTask implements Action { final public Task task; }
+    @AllArgsConstructor
+    static public class RemoveTask implements Action { final public int id; }
 
-    //TODO: Use task ids instead of indexes in Lists
-    private int id;
-    private List<Task> tasks;
-    private HashMap<Integer, Integer> nextPeriod;
-    private HashMap<Integer, State> states;
+    final private int id;
+    final private HashMap<Integer, Task> tasks;
+    final private HashMap<Integer, Integer> nextPeriod;
+    final private HashMap<Integer, State> states;
+    final private Queue<Action> actions;
     private int current;
     private int left;
 
@@ -23,8 +30,10 @@ public class TimeFrame
         id = 0;
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
-        tasks = t;
-        for(var task: tasks) {
+        tasks = new HashMap<>();
+        actions = new LinkedList<>();
+        for(var task: t) {
+            tasks.put(task.id, task);
             nextPeriod.put(task.id, task.period);
             states.put(task.id, State.WAITING);
         }
@@ -35,6 +44,7 @@ public class TimeFrame
         id = tf.id+1;
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
+        actions = tf.actions;
         tasks = tf.tasks;
         left = tf.left-((tf.left>0)?1:0);
         current = tf.current;
@@ -49,6 +59,23 @@ public class TimeFrame
                 states.replace(n, State.WAITING);
             }
         }
+        for(var n: actions) {
+            Task t;
+            if(n instanceof AddTask) {
+                t = ((AddTask)n).task;
+                tasks.put(t.id, t);
+                nextPeriod.put(t.id, t.period);
+                states.put(t.id, State.WAITING);
+            } else if (n instanceof RemoveTask) {
+                if(current == ((RemoveTask)n).id) {
+                    current = -1;
+                    left = 0;
+                }
+                tasks.remove(((RemoveTask)n).id);
+                nextPeriod.remove(((RemoveTask)n).id);
+                states.remove(((RemoveTask)n).id);
+            }
+        }
         if(left == 0) {
             if(current != -1)
                 states.replace(current, State.DONE);
@@ -56,12 +83,12 @@ public class TimeFrame
         }
     }
 
-    private void startTask() {
-        current = getEDId();
-        if(current != -1) {
-            left = tasks.get(current).duration;
-            states.replace(current, State.RUNNING);
-        }
+    public void addTask(Task t) {
+        actions.add(new AddTask(t));
+    }
+
+    public void removeTask(int id) {
+        actions.add(new RemoveTask(id));
     }
 
     public int getTimeLeft() { return left; }
@@ -76,18 +103,28 @@ public class TimeFrame
     }
 
     private int getEDId() {
-        int index = 0;
         int min_id = -1;
         Task t;
+        int id;
+        Integer period;
         Integer min = Integer.MAX_VALUE;
-        var i = tasks.iterator();
+        var i = tasks.entrySet().iterator();
         while(i.hasNext()) {
-            t = i.next();
-            if(states.get(t.id) == State.WAITING && min > t.period) {
-                min = t.period;
-                min_id = t.id;
+            id = i.next().getKey();
+            period = tasks.get(id).period;
+            if(states.get(id) == State.WAITING && min > period) {
+                min = period;
+                min_id = id;
             }
         }
         return min_id;
+    }
+
+    private void startTask() {
+        current = getEDId();
+        if(current != -1) {
+            left = tasks.get(current).duration;
+            states.replace(current, State.RUNNING);
+        }
     }
 }

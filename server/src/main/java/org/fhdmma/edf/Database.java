@@ -37,25 +37,27 @@ public class Database {
 
     public static void printTasks() throws SQLException {
         Task t;
-        ResultSet rs = statement.executeQuery("select * from task");
-        while(rs.next()) {
-            t = new Task(rs.getInt("id"),
-                    rs.getInt("duration"),
-                    rs.getInt("period"));
-            System.out.println(t);
+        try(ResultSet rs = statement.executeQuery("select * from task")) {
+            while(rs.next()) {
+                t = new Task(rs.getInt("id"),
+                        rs.getInt("duration"),
+                        rs.getInt("period"));
+                System.out.println(t);
+            }
         }
     }
 
     public static void printTimeFrames() throws SQLException {
-        ResultSet rs = statement.executeQuery("select * from timeframe");
         int curr;
         String active;
-        while(rs.next()) {
-            curr = rs.getInt("activeTask");
-            active = ((rs.wasNull())?"null":String.valueOf(curr));
-            System.out.println("{ id: "  + rs.getInt("id") +
-                    ", activeTask: " + active +
-                    ", timeleft: " + rs.getInt("timeleft") + " }");
+        try (ResultSet rs = statement.executeQuery("select * from timeframe")) {
+            while(rs.next()) {
+                curr = rs.getInt("activeTask");
+                active = ((rs.wasNull())?"null":String.valueOf(curr));
+                System.out.println("{ id: "  + rs.getInt("id") +
+                        ", activeTask: " + active +
+                        ", timeleft: " + rs.getInt("timeleft") + " }");
+            }
         }
     }
 
