@@ -56,7 +56,6 @@ mvnw
 mvnw.cmd
 .idea
 
-
 # database
 server/server.db
 
