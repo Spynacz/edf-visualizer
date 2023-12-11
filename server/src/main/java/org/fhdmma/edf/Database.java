@@ -32,8 +32,8 @@ public class Database {
                 "FOREIGN KEY(user_id) REFERENCES users(id));");
         statement.executeUpdate("CREATE TABLE timeframe" +
                 "(id INTEGER PRIMARY KEY, "+
-                "activetask INTEGER, "+
-                "timeleft INTEGER, "+
+                "active_task INTEGER, "+
+                "time_left INTEGER, "+
                 "task_id INTEGER, "+
                 "FOREIGN KEY(task_id) REFERENCES task(id));");
     }
@@ -53,7 +53,7 @@ public class Database {
 
     }
 
-    public static Boolean userRegister(String username, String password1, String password2) throws InvalidAttributeValueException, SQLException {
+    public static Boolean userRegister(String username, String password1, String password2) throws InvalidAttributeValueException {
         if (!password2.equals(password1)) {
             throw new InvalidAttributeValueException("Passwords are not the same!");
         }
@@ -76,12 +76,12 @@ public class Database {
             return true;
         } 
         catch (SQLException e){
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
-    public static Task addTask(int duration, int period) throws SQLException {
+    // TODO: Add user_id
+    public static Task addTask(int duration, int period) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO task(duration, period) VALUES(?, ?)",
                                                                Statement.RETURN_GENERATED_KEYS);
@@ -112,11 +112,41 @@ public class Database {
         }
     }
 
-    public static void addTimeFrame(TimeFrame t) throws SQLException {
-        int curr = t.getCurrentTask();
-        String active = (curr==-1)?"NULL":String.valueOf(curr);
-        statement.executeUpdate("insert into timeframe values(" +
-                t.getId() + ", " + active + ", " + t.getTimeLeft() + ");");
+    public static TimeFrame getLatestTimeFrame() throws SQLException {
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframe ORDER BY id DESC LIMIT 1");
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new TimeFrame(
+                    rs.getInt("id"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    rs.getInt("active_task"),
+                    rs.getInt("time_left")
+                );
+            }
+            throw new SQLException("Getting timeframe failed, no rows obtained.");
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void addTimeFrame(TimeFrame tf) throws SQLException {
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframe(id, active_task, time_left) VALUES(?, ?, ?)");
+            ps.setInt(1, tf.getId());
+            ps.setInt(2, tf.getCurrentTask());
+            ps.setInt(3, tf.getTimeLeft());
+
+            ps.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void printTasks() throws SQLException {
