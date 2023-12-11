@@ -13,29 +13,63 @@ public class Database {
     static Statement statement;
 
     public static void connect() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:server.db");
-        statement = connection.createStatement();
-        statement.setQueryTimeout(30);
-        statement.executeUpdate("DROP TABLE IF EXISTS tasks");
-        statement.executeUpdate("DROP TABLE IF EXISTS timeframes");
-        statement.executeUpdate("DROP TABLE IF EXISTS users");
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite:server.db");
+            statement = connection.createStatement();
+            statement.setQueryTimeout(30);
+            statement.executeUpdate("DROP TABLE IF EXISTS users");
+            statement.executeUpdate("DROP TABLE IF EXISTS tasks");
+            statement.executeUpdate("DROP TABLE IF EXISTS timeframes");
+            statement.executeUpdate("DROP TABLE IF EXISTS timeframes_tasks");
+            statement.executeUpdate("DROP TABLE IF EXISTS periods");
+            statement.executeUpdate("DROP TABLE IF EXISTS states");
+            statement.executeUpdate("DROP TABLE IF EXISTS actions");
 
-        statement.executeUpdate("CREATE TABLE users"+
-                "(id INTEGER PRIMARY KEY, "+
-                "username TEXT, "+
-                "password TEXT);");
-        statement.executeUpdate("CREATE TABLE tasks" +
-                "(id INTEGER PRIMARY KEY, "+
-                "duration INTEGER, "+
-                "period INTEGER, "+
-                "user_id INTEGER, "+
-                "FOREIGN KEY(user_id) REFERENCES users(id));");
-        statement.executeUpdate("CREATE TABLE timeframes" +
-                "(id INTEGER PRIMARY KEY, "+
-                "active_task INTEGER, "+
-                "time_left INTEGER, "+
-                "task_id INTEGER, "+
-                "FOREIGN KEY(task_id) REFERENCES tasks(id));");
+            statement.executeUpdate("CREATE TABLE users"+
+                    "(id INTEGER PRIMARY KEY, "+
+                    "username TEXT, "+
+                    "password TEXT);");
+            statement.executeUpdate("CREATE TABLE tasks" +
+                    "(id INTEGER PRIMARY KEY, "+
+                    "user_id INTEGER, "+
+                    "duration INTEGER, "+
+                    "period INTEGER, "+
+                    "FOREIGN KEY(user_id) REFERENCES users(id));");
+            statement.executeUpdate("CREATE TABLE timeframes" +
+                    "(id INTEGER PRIMARY KEY, "+
+                    "active_task INTEGER, "+
+                    "time_left INTEGER);");
+            statement.executeUpdate("CREATE TABLE timeframes_tasks" +
+                    "(timeframe_id INTEGER," +
+                    "task_id INTEGER," +
+                    "PRIMARY KEY(timeframe_id, task_id)," +
+                    "FOREIGN KEY(timeframe_id) REFERENCES timeframes(id)," +
+                    "FOREIGN KEY(task_id) REFERENCES tasks(id));");
+            statement.executeUpdate("CREATE TABLE periods" +
+                    "(timeframe_id INTEGER," +
+                    "task_id INTEGER," +
+                    "timeframes_needed INTEGER," +
+                    "PRIMARY KEY(timeframe_id, task_id)," +
+                    "FOREIGN KEY(timeframe_id) REFERENCES timeframes(id)," +
+                    "FOREIGN KEY(task_id) REFERENCES tasks(id));");
+            statement.executeUpdate("CREATE TABLE states" +
+                    "(timeframe_id INTEGER," +
+                    "task_id INTEGER," +
+                    "state TEXT CHECK(state in ('DONE', 'RUNNING', 'WAITING'))," +
+                    "PRIMARY KEY(timeframe_id, task_id)," +
+                    "FOREIGN KEY(timeframe_id) REFERENCES timeframes(id)," +
+                    "FOREIGN KEY(task_id) REFERENCES tasks(id));");
+            statement.executeUpdate("CREATE TABLE actions" +
+                    "(id INTEGER PRIMARY KEY," + 
+                    "timeframe_id INTEGER," +
+                    "task_id INTEGER," +
+                    "action TEXT CHECK(action in ('ADD', 'REMOVE', NULL)) NULL DEFAULT NULL," +
+                    "FOREIGN KEY(timeframe_id) REFERENCES timeframes(id)," +
+                    "FOREIGN KEY(task_id) REFERENCES tasks(id));");
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static User userLogin(String username, String password) throws SQLException {
