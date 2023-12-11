@@ -1,10 +1,13 @@
 package org.fhdmma.edf;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
 public class User {
-    @Getter private int id;
-    @Getter private String username;
+    private int id; 
+    private String username;
     private String password;
 
     public User(int id, String username, String password) {
