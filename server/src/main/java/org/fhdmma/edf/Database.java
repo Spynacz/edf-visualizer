@@ -37,12 +37,18 @@ public class Database {
     }
 
     public static User userLogin(String username, String password) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?;");
-        ps.setString(1, username);
-        ps.setString(2, password);
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?;")) {
+            ps.setString(1, username);
+            ps.setString(2, password);
 
-        ResultSet rs = ps.executeQuery();
-        return new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"));
+            ResultSet rs = ps.executeQuery();
+            return new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"));
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return new User();
+        }
+
     }
 
     public static Boolean userRegister(String username, String password1, String password2) throws SQLException {
@@ -50,23 +56,29 @@ public class Database {
             System.out.println("Passwords are not the same!");
             return false;
         }
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT username FROM users WHERE username = ?;");
+            ps.setString(1, username);
 
-        PreparedStatement ps = connection.prepareStatement("SELECT username FROM users WHERE username = ?;");
-        ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
 
-        ResultSet rs = ps.executeQuery();
+            while (rs.next()) {     
+                System.out.println("Username is taken.");
+                return false;
+            }
+            System.out.println("Jest git.");
 
-        while (rs.next()) {     
-            System.out.println("Username is taken.");
+            ps = connection.prepareStatement("INSERT INTO users(username, password) VALUES(?,?);");
+            ps.setString(1, username);
+            ps.setString(2, password1);
+            ps.executeUpdate();
+            ps.close();
+            return true;
+        } 
+        catch (SQLException e){
+            e.printStackTrace();
             return false;
         }
-        System.out.println("Jest git.");
-
-        ps = connection.prepareStatement("INSERT INTO users(username, password) VALUES(?,?);");
-        ps.setString(1, username);
-        ps.setString(2, password1);
-        ps.executeUpdate();
-        return true;
     }
 
     public static void addTask(Task t) throws SQLException {
