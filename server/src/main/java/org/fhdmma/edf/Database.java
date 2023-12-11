@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.management.InvalidAttributeValueException;
-import javax.management.RuntimeErrorException;
 
 public class Database {
     static Connection connection;
@@ -17,26 +16,26 @@ public class Database {
         connection = DriverManager.getConnection("jdbc:sqlite:server.db");
         statement = connection.createStatement();
         statement.setQueryTimeout(30);
-        statement.executeUpdate("DROP TABLE IF EXISTS task");
-        statement.executeUpdate("DROP TABLE IF EXISTS timeframe");
+        statement.executeUpdate("DROP TABLE IF EXISTS tasks");
+        statement.executeUpdate("DROP TABLE IF EXISTS timeframes");
         statement.executeUpdate("DROP TABLE IF EXISTS users");
 
         statement.executeUpdate("CREATE TABLE users"+
                 "(id INTEGER PRIMARY KEY, "+
                 "username TEXT, "+
                 "password TEXT);");
-        statement.executeUpdate("CREATE TABLE task" +
+        statement.executeUpdate("CREATE TABLE tasks" +
                 "(id INTEGER PRIMARY KEY, "+
                 "duration INTEGER, "+
                 "period INTEGER, "+
                 "user_id INTEGER, "+
                 "FOREIGN KEY(user_id) REFERENCES users(id));");
-        statement.executeUpdate("CREATE TABLE timeframe" +
+        statement.executeUpdate("CREATE TABLE timeframes" +
                 "(id INTEGER PRIMARY KEY, "+
                 "active_task INTEGER, "+
                 "time_left INTEGER, "+
                 "task_id INTEGER, "+
-                "FOREIGN KEY(task_id) REFERENCES task(id));");
+                "FOREIGN KEY(task_id) REFERENCES tasks(id));");
     }
 
     public static User userLogin(String username, String password) throws SQLException {
@@ -84,7 +83,7 @@ public class Database {
     // TODO: Add user_id
     public static Task addTask(int duration, int period) {
         try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO task(duration, period) VALUES(?, ?)",
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO tasks(duration, period) VALUES(?, ?)",
                                                                Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, duration);
             ps.setInt(2, period);
@@ -93,7 +92,7 @@ public class Database {
 
             try {
                 // TODO: Race condition possible.
-                ps = connection.prepareStatement("SELECT id, duration, period FROM task WHERE duration = ? AND period = ?");
+                ps = connection.prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ?");
                 ps.setInt(1, duration);
                 ps.setInt(2, period);
 
@@ -115,7 +114,7 @@ public class Database {
 
     public static TimeFrame getLatestTimeFrame() throws SQLException {
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframe ORDER BY id DESC LIMIT 1");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -138,7 +137,7 @@ public class Database {
 
     public static void addTimeFrame(TimeFrame tf) throws SQLException {
         try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframe(id, active_task, time_left) VALUES(?, ?, ?)");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
             ps.setInt(1, tf.getId());
             ps.setInt(2, tf.getCurrentTask());
             ps.setInt(3, tf.getTimeLeft());
@@ -152,7 +151,7 @@ public class Database {
 
     public static void printTasks() throws SQLException {
         Task t;
-        try(ResultSet rs = statement.executeQuery("SELECT * FROM task")) {
+        try(ResultSet rs = statement.executeQuery("SELECT * FROM tasks")) {
             while(rs.next()) {
                 t = new Task(
                     rs.getInt("id"),
@@ -170,7 +169,7 @@ public class Database {
     public static void printTimeFrames() throws SQLException {
         int curr;
         String active;
-        try (ResultSet rs = statement.executeQuery("SELECT * FROM timeframe")) {
+        try (ResultSet rs = statement.executeQuery("SELECT * FROM timeframes")) {
             while(rs.next()) {
                 curr = rs.getInt("activeTask");
                 active = ((rs.wasNull())?"null":String.valueOf(curr));
