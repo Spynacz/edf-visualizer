@@ -32,10 +32,8 @@ public class Database {
                     "password TEXT);");
             statement.executeUpdate("CREATE TABLE tasks" +
                     "(id INTEGER PRIMARY KEY, "+
-                    "user_id INTEGER, "+
                     "duration INTEGER, "+
-                    "period INTEGER, "+
-                    "FOREIGN KEY(user_id) REFERENCES users(id));");
+                    "period INTEGER;");
             statement.executeUpdate("CREATE TABLE timeframes" +
                     "(id INTEGER PRIMARY KEY, "+
                     "active_task INTEGER, "+
@@ -71,6 +69,10 @@ public class Database {
         catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void disconnect() throws SQLException {
+        connection.close();
     }
 
     public static User userLogin(String username, String password) throws SQLException {
@@ -115,7 +117,15 @@ public class Database {
         }
     }
 
-    // TODO: Add user_id
+    public static void addPeriodList(HashMap<Integer, Integer> periods){
+        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO periods(timeframe_id, task_id, timeframes_needed) VALUES(?, ?, ?);")) {
+
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    } 
+
     public static Task addTask(int timeframe_id, int duration, int period) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO tasks(duration, period) VALUES(?, ?)",
@@ -158,6 +168,26 @@ public class Database {
         }
     }
 
+    public static void addTaskList(int timeframe_id, HashMap<Integer, Task> tasks) {
+        for (Task task : tasks.values()) {
+            addTask(timeframe_id, task.getDuration(), task.getPeriod());
+        }
+    }
+
+    public static void addTimeFrame(TimeFrame tf) throws SQLException {
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
+            ps.setInt(1, tf.getId());
+            ps.setInt(2, tf.getCurrentTask());
+            ps.setInt(3, tf.getTimeLeft());
+
+            ps.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static TimeFrame getLatestTimeFrame() throws SQLException {
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
@@ -182,41 +212,6 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
-
-    public static void addTimeFrame(TimeFrame tf) throws SQLException {
-        try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
-            ps.setInt(1, tf.getId());
-            ps.setInt(2, tf.getCurrentTask());
-            ps.setInt(3, tf.getTimeLeft());
-
-            ps.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static HashMap<Integer, Task> getTasksList(int timeframe_id){
-        HashMap<Integer, Task> tasks = new HashMap<>();
-        try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks_timeframes NATURAL JOIN tasks WHERE timeframe_id = ?;");
-            ps.setInt(1, timeframe_id);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()){
-                tasks.put(
-                    rs.getInt("task_id"),
-                    new Task(rs.getInt("task_id"), rs.getInt("duration"), rs.getInt("period")));
-            }
-            return tasks;
-        }
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // TODO: addPeriod and addStates methods with intframe_id
     private static HashMap<Integer, Integer> getPeriod(int timeframe_id) {
         HashMap<Integer, Integer> period = new HashMap<>();
@@ -258,6 +253,26 @@ public class Database {
         }
     }
 
+    private static HashMap<Integer, Task> getTasksList(int timeframe_id){
+        HashMap<Integer, Task> tasks = new HashMap<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks_timeframes NATURAL JOIN tasks WHERE timeframe_id = ?;");
+            ps.setInt(1, timeframe_id);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+                tasks.put(
+                    rs.getInt("task_id"),
+                    new Task(rs.getInt("task_id"), rs.getInt("duration"), rs.getInt("period")));
+            }
+            return tasks;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void printTasks() throws SQLException {
         Task t;
         try(ResultSet rs = statement.executeQuery("SELECT * FROM tasks")) {
@@ -293,7 +308,4 @@ public class Database {
         }
     }
 
-    public static void disconnect() throws SQLException {
-        connection.close();
-    }
 }
