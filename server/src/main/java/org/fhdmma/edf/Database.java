@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -117,9 +118,14 @@ public class Database {
         }
     }
 
-    public static void addPeriodList(HashMap<Integer, Integer> periods){
+    public static void addPeriodList(int timeframe_id, HashMap<Integer, Integer> periods){
         try (PreparedStatement ps = connection.prepareStatement("INSERT INTO periods(timeframe_id, task_id, timeframes_needed) VALUES(?, ?, ?);")) {
-
+            ps.setInt(1, timeframe_id);
+            for (Map.Entry<Integer, Integer> period : periods.entrySet()) {
+                ps.setInt(2, period.getKey());
+                ps.setInt(3, period.getValue());
+                ps.executeUpdate();
+            }
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
