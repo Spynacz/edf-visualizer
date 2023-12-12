@@ -10,7 +10,7 @@ public class Interactor {
     }
 
     public void addTask() {
-        EDFTask newTask = new EDFTask(model.getTitle(), model.getDeadline(), model.getDuration());
+        EDFTask newTask = new EDFTask(model.getTitle(), model.getPeriod(), model.getDuration());
 
         // change to different storage
         Main.addTask(newTask);
@@ -26,7 +26,7 @@ public class Interactor {
 
     public void updateSelectedModel() {
         model.setSelectedTitle(selectedTask.getName());
-        model.setSelectedDeadline(String.valueOf(selectedTask.getDeadline()));
+        model.setSelectedPeriod(String.valueOf(selectedTask.getPeriod()));
         model.setSelectedDuration(String.valueOf(selectedTask.getDuration()));
     }
 }

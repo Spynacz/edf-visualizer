@@ -10,9 +10,9 @@ public class Controller {
     private Interactor interactor;
 
     public Controller() {
-        Model edfTaskModel = new Model();
-        this.interactor = new Interactor(edfTaskModel);
-        this.viewBuilder = new ViewBuilder(edfTaskModel, this::addTask, this::displayTaskDetails);
+        Model model = new Model();
+        this.interactor = new Interactor(model);
+        this.viewBuilder = new ViewBuilder(model, this::addTask, this::displayTaskDetails);
     }
 
     private void displayTaskDetails(Runnable postFetchGUIUpdate) {

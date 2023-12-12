@@ -15,13 +15,13 @@ public class Model {
 
     private final StringProperty title = new SimpleStringProperty("");
     private final IntegerProperty duration = new SimpleIntegerProperty();
-    private final IntegerProperty deadline = new SimpleIntegerProperty();
+    private final IntegerProperty period = new SimpleIntegerProperty();
     private final ObservableList<EDFTask> taskList = FXCollections.observableArrayList();
     //TODO: consider splitting into two models
     private final ObjectProperty<EDFTask> selectedTask = new SimpleObjectProperty<EDFTask>();
     private final StringProperty selectedTitle = new SimpleStringProperty("");
     private final StringProperty selectedDuration = new SimpleStringProperty("");
-    private final StringProperty selectedDeadline = new SimpleStringProperty("");
+    private final StringProperty selectedPeriod = new SimpleStringProperty("");
 
     public String getTitle() {
         return title.get();
@@ -47,16 +47,16 @@ public class Model {
         this.duration.set(time);
     }
 
-    public int getDeadline() {
-        return deadline.get();
+    public int getPeriod() {
+        return period.get();
     }
 
-    public IntegerProperty deadlineProperty() {
-        return deadline;
+    public IntegerProperty periodProperty() {
+        return period;
     }
 
-    public void setDeadline(int deadline) {
-        this.deadline.set(deadline);
+    public void setPeriod(int period) {
+        this.period.set(period);
     }
 
     public ObservableList<EDFTask> getTaskList() {
@@ -103,15 +103,15 @@ public class Model {
         this.selectedDuration.set(time);
     }
 
-    public String getSelectedDeadline() {
-        return selectedDeadline.get();
+    public String getSelectedPeriod() {
+        return selectedPeriod.get();
     }
 
-    public StringProperty selectedDeadlineProperty() {
-        return selectedDeadline;
+    public StringProperty selectedPeriodProperty() {
+        return selectedPeriod;
     }
 
-    public void setSelectedDeadline(String deadline) {
-        this.selectedDeadline.set(deadline);
+    public void setSelectedPeriod(String period) {
+        this.selectedPeriod.set(period);
     }
 }

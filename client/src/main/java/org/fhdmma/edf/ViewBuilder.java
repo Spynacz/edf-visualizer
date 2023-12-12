@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -86,14 +85,14 @@ public class ViewBuilder implements Builder<Region> {
             return new ListCell<EDFTask>() {
                 private HBox content;
                 private Text name;
-                private Text deadline;
+                private Text period;
                 private Text duration;
 
                 {
                     name = new Text();
-                    deadline = new Text();
+                    period = new Text();
                     duration = new Text();
-                    VBox vBox = new VBox(deadline, duration);
+                    VBox vBox = new VBox(period, duration);
                     content = new HBox(name, vBox);
                 }
 
@@ -102,7 +101,7 @@ public class ViewBuilder implements Builder<Region> {
                     super.updateItem(item, empty);
                     if (item != null && !empty) {
                         name.setText(item.getName());
-                        deadline.setText("Deadline: " + item.getDeadline());
+                        period.setText("Period: " + item.getPeriod());
                         duration.setText("Duration: " + item.getDuration());
                         setGraphic(content);
                     } else {
@@ -127,11 +126,12 @@ public class ViewBuilder implements Builder<Region> {
     private Node setTaskDetails() {
         return new VBox(boundLabel(model.selectedTitleProperty()),
                 boundLabel(model.selectedDurationProperty()),
-                boundLabel(model.selectedDeadlineProperty()));
+                boundLabel(model.selectedPeriodProperty()));
     }
 
     private Node setAddTaskButton(Consumer<Runnable> addTask) {
         Button button = new Button("Add task");
+
         button.setOnAction(evt -> {
             final Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
@@ -139,14 +139,14 @@ public class ViewBuilder implements Builder<Region> {
             HBox title = new HBox(6, new Label("Task name:"), boundTextField(model.titleProperty()));
             HBox duration = new HBox(6, new Label("Task duration:"),
                     boundIntegerField(model.durationProperty()));
-            HBox deadline = new HBox(6, new Label("Task deadline:"),
-                    boundIntegerField(model.deadlineProperty()));
+            HBox period = new HBox(6, new Label("Task period:"),
+                    boundIntegerField(model.periodProperty()));
             Button confirm = new Button("Confirm");
             confirm.setOnAction(evt2 -> {
                 addTask.accept(() -> dialog.close());
             });
 
-            VBox vbox = new VBox(title, duration, deadline, confirm);
+            VBox vbox = new VBox(title, duration, period, confirm);
 
             Scene dialogScene = new Scene(vbox, 400, 300);
             dialog.setScene(dialogScene);
