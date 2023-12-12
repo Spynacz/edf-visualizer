@@ -155,7 +155,8 @@ public class Database {
             ps.executeUpdate();
             try {
                 // TODO: Race condition possible.
-                ps = connection.prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ? LIMIT 1");
+                ps = connection.prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ? "+
+                                                 "ORDER BY id DESC LIMIT 1");
                 ps.setInt(1, duration);
                 ps.setInt(2, period);
 
@@ -264,7 +265,7 @@ public class Database {
             while (rs.next()){
                 states.put(
                     rs.getInt("task_id"),
-                    TimeFrame.State.valueOf(rs.getString("timeframes_needed")));
+                    TimeFrame.State.valueOf(rs.getString("state")));
             }
             return states;
         }
@@ -276,7 +277,7 @@ public class Database {
     private static HashMap<Integer, Task> getTasksList(int timeframe_id){
         HashMap<Integer, Task> tasks = new HashMap<>();
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks_timeframes NATURAL JOIN tasks WHERE timeframe_id = ?;");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes_tasks NATURAL JOIN tasks WHERE timeframe_id = ?;");
             ps.setInt(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
