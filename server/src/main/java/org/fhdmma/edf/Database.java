@@ -165,11 +165,12 @@ public class Database {
             
             // TODO: Make it return all values - not nulls
             if (rs.next()) {
+                int id = rs.getInt("id");
                 return new TimeFrame(
-                    rs.getInt("id"),
-                    null,
-                    null,
-                    null,
+                    id,
+                    getTasksList(id),
+                    getPeriod(id),
+                    getStates(id),
                     null,
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
@@ -210,6 +211,47 @@ public class Database {
                     new Task(rs.getInt("task_id"), rs.getInt("duration"), rs.getInt("period")));
             }
             return tasks;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // TODO: addPeriod and addStates methods with intframe_id
+    private static HashMap<Integer, Integer> getPeriod(int timeframe_id) {
+        HashMap<Integer, Integer> period = new HashMap<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM periods WHERE timeframe_id = ?;");
+            ps.setInt(1, timeframe_id);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+                period.put(
+                    rs.getInt("task_id"),
+                    rs.getInt("timeframes_needed"));
+            }
+            return period;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static HashMap<Integer, TimeFrame.State> getStates(int timeframe_id) {
+        HashMap<Integer, TimeFrame.State> states = new HashMap<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM states WHERE timeframe_id = ?;");
+            ps.setInt(1, timeframe_id);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+                states.put(
+                    rs.getInt("task_id"),
+                    TimeFrame.State.valueOf(rs.getString("timeframes_needed")));
+            }
+            return states;
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
