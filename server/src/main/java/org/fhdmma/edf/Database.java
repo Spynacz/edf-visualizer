@@ -196,6 +196,26 @@ public class Database {
         }
     }
 
+    private static HashMap<Integer, Task> getTasksList(int timeframe_id){
+        HashMap<Integer, Task> tasks = new HashMap<>();
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks_timeframes NATURAL JOIN tasks WHERE timeframe_id = ?;");
+            ps.setInt(1, timeframe_id);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+                tasks.put(
+                    rs.getInt("task_id"),
+                    new Task(rs.getInt("task_id"), rs.getInt("duration"), rs.getInt("period")));
+            }
+            return tasks;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void printTasks() throws SQLException {
         Task t;
         try(ResultSet rs = statement.executeQuery("SELECT * FROM tasks")) {
