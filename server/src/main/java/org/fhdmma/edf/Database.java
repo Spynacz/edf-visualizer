@@ -34,7 +34,7 @@ public class Database {
             statement.executeUpdate("CREATE TABLE tasks" +
                     "(id INTEGER PRIMARY KEY, "+
                     "duration INTEGER, "+
-                    "period INTEGER;");
+                    "period INTEGER);");
             statement.executeUpdate("CREATE TABLE timeframes" +
                     "(id INTEGER PRIMARY KEY, "+
                     "active_task INTEGER, "+
@@ -118,8 +118,8 @@ public class Database {
         }
     }
 
-    public static void addPeriodList(int timeframe_id, HashMap<Integer, Integer> periods){
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO periods VALUES(?, ?, ?);")) {
+    private static void addPeriodList(int timeframe_id, HashMap<Integer, Integer> periods){
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
             ps.setInt(1, timeframe_id);
             for (Map.Entry<Integer, Integer> period : periods.entrySet()) {
                 ps.setInt(2, period.getKey());
@@ -132,12 +132,13 @@ public class Database {
         }
     } 
 
-    public static void addStateList(int timeframe_id, HashMap<Integer, TimeFrame.State> states){
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO periods VALUES(?, ?, ?);")){
+    private static void addStateList(int timeframe_id, HashMap<Integer, TimeFrame.State> states){
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO states VALUES(?, ?, ?);")){
             ps.setInt(1, timeframe_id);
             for (Map.Entry<Integer, TimeFrame.State> state : states.entrySet()) {
                 ps.setInt(2, state.getKey());
                 ps.setString(3, state.getValue().toString());
+                ps.executeUpdate();
             }
         }
         catch (SQLException e) {
@@ -151,9 +152,7 @@ public class Database {
                                                                Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, duration);
             ps.setInt(2, period);
-
             ps.executeUpdate();
-
             try {
                 // TODO: Race condition possible.
                 ps = connection.prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ? LIMIT 1");
@@ -168,7 +167,7 @@ public class Database {
 
                 Task task = new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
                 try {
-                    ps = connection.prepareStatement("INSERT INTO timeframes_tasks VALUES(?, ?)");
+                    ps = connection.prepareStatement("INSERT OR IGNORE INTO timeframes_tasks VALUES(?, ?)");
                     ps.setInt(1, timeframe_id);
                     ps.setInt(2, task.getId());
                     ps.executeUpdate();
@@ -187,19 +186,18 @@ public class Database {
         }
     }
 
-    public static void addTaskList(int timeframe_id, HashMap<Integer, Task> tasks) {
+    private static void addTaskList(int timeframe_id, HashMap<Integer, Task> tasks) {
         for (Task task : tasks.values()) {
             addTask(timeframe_id, task.getDuration(), task.getPeriod());
         }
     }
 // TODO: Add timeframe actions
-    public static void addTimeFrame(TimeFrame tf) throws SQLException {
+    public static void addTimeFrame(TimeFrame tf) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
             ps.setInt(1, tf.getId());
             ps.setInt(2, tf.getCurrentTask());
             ps.setInt(3, tf.getTimeLeft());
-
             ps.executeUpdate();
         }
         catch (SQLException e) {
@@ -329,5 +327,4 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
-
 }
