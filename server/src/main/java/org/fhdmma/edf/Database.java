@@ -21,7 +21,7 @@ public class Database {
             statement.executeUpdate("DROP TABLE IF EXISTS users");
             statement.executeUpdate("DROP TABLE IF EXISTS tasks");
             statement.executeUpdate("DROP TABLE IF EXISTS timeframes");
-            statement.executeUpdate("DROP TABLE IF EXISTS tasks_timeframes");
+            statement.executeUpdate("DROP TABLE IF EXISTS timeframes_tasks");
             statement.executeUpdate("DROP TABLE IF EXISTS periods");
             statement.executeUpdate("DROP TABLE IF EXISTS states");
             statement.executeUpdate("DROP TABLE IF EXISTS actions");
@@ -40,7 +40,7 @@ public class Database {
                     "(id INTEGER PRIMARY KEY, "+
                     "active_task INTEGER, "+
                     "time_left INTEGER);");
-            statement.executeUpdate("CREATE TABLE tasks_timeframes" +
+            statement.executeUpdate("CREATE TABLE timeframes_tasks" +
                     "(timeframe_id INTEGER," +
                     "task_id INTEGER," +
                     "PRIMARY KEY(timeframe_id, task_id)," +
@@ -139,9 +139,9 @@ public class Database {
 
                 Task task = new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
                 try {
-                    ps = connection.prepareStatement("INSERT INTO tasks_timeframes VALUES(?, ?)");
-                    ps.setInt(1, task.getId());
-                    ps.setInt(2, timeframe_id);
+                    ps = connection.prepareStatement("INSERT INTO timeframes_tasks VALUES(?, ?)");
+                    ps.setInt(1, timeframe_id);
+                    ps.setInt(2, task.getId());
                     ps.executeUpdate();
                 }
                 catch(SQLException e) {
