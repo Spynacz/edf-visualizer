@@ -2,12 +2,14 @@ package org.fhdmma.edf;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Queue;
 
 @AllArgsConstructor
+@Data
 public class TimeFrame
 {
     enum State {
