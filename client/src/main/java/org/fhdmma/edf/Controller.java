@@ -13,6 +13,9 @@ public class Controller {
         Model model = new Model();
         this.interactor = new Interactor(model);
         this.viewBuilder = new ViewBuilder(model, this::addTask, this::displayTaskDetails);
+
+        // temporary
+        interactor.updateTaskListModel();
     }
 
     private void displayTaskDetails(Runnable postFetchGUIUpdate) {

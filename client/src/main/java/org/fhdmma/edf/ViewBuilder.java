@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -44,7 +45,7 @@ public class ViewBuilder implements Builder<Region> {
         BorderPane mainPane = new BorderPane();
         mainPane.getStylesheets()
                 .add(Objects.requireNonNull(this.getClass().getResource("/css/main.css")).toExternalForm());
-        mainPane.setTop(headingLabel("EDF visualizer"));
+        mainPane.setTop(headingLabel("EDF Visualizer"));
         mainPane.setLeft(createLeft());
         mainPane.setRight(createRight());
         mainPane.setCenter(createCenter());
@@ -60,7 +61,6 @@ public class ViewBuilder implements Builder<Region> {
 
     private Node createLeft() {
         VBox vbox = new VBox();
-        vbox.setMinWidth(200);
 
         vbox.getChildren().add(setClientTasks(taskDetailsDisplayer));
         VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
@@ -89,15 +89,15 @@ public class ViewBuilder implements Builder<Region> {
             return new ListCell<EDFTask>() {
                 private HBox content;
                 private Text name;
-                private Text period;
-                private Text duration;
+                // private Text period;
+                // private Text duration;
 
                 {
                     name = new Text();
-                    period = new Text();
-                    duration = new Text();
-                    VBox vBox = new VBox(period, duration);
-                    content = new HBox(name, vBox);
+                    // period = new Text();
+                    // duration = new Text();
+                    // VBox vBox = new VBox(period, duration);
+                    content = new HBox(10, name);
                 }
 
                 @Override
@@ -105,8 +105,8 @@ public class ViewBuilder implements Builder<Region> {
                     super.updateItem(item, empty);
                     if (item != null && !empty) {
                         name.setText(item.getName());
-                        period.setText("Period: " + item.getPeriod());
-                        duration.setText("Duration: " + item.getDuration());
+                        // period.setText("Period: " + item.getPeriod());
+                        // duration.setText("Duration: " + item.getDuration());
                         setGraphic(content);
                     } else {
                         setGraphic(null);
@@ -120,17 +120,27 @@ public class ViewBuilder implements Builder<Region> {
             if (t != null) {
                 model.setSelectedTask(t);
                 displayTaskDetails.accept(() -> {
+                    // TODO: side panel hide/unhide
                 });
             }
         });
+
+        listView.getStyleClass().add("task-list");
 
         return listView;
     }
 
     private Node setTaskDetails() {
-        return new VBox(boundLabel(model.selectedTitleProperty()),
-                boundLabel(model.selectedDurationProperty()),
-                boundLabel(model.selectedPeriodProperty()));
+        HBox title = new HBox(6, boundLabel(model.selectedTitleProperty()));
+        // TODO: hide labels when no task selected (unless the sidebar will be hidden)
+        HBox duration = new HBox(6, new Label("Duration:"), boundLabel(model.selectedDurationProperty()));
+        HBox period = new HBox(6, new Label("Period:"), boundLabel(model.selectedDurationProperty()));
+
+        title.getStyleClass().add("details-title");
+        duration.getStyleClass().add("details");
+        period.getStyleClass().add("details");
+
+        return new VBox(10, title, duration, period);
     }
 
     private Node setAddTaskButton() {
@@ -150,6 +160,9 @@ public class ViewBuilder implements Builder<Region> {
             dialog.setResizable(false);
             dialog.show();
         });
+
+        button.getStyleClass().add("add-button");
+
         return button;
     }
 
@@ -253,14 +266,19 @@ public class ViewBuilder implements Builder<Region> {
     private Node boundLabel(StringProperty boundProperty) {
         Label label = new Label();
         label.textProperty().bind(boundProperty);
+        return label;
+    }
 
+    private Node boundLabel(IntegerProperty boundProperty) {
+        Label label = new Label();
+        label.textProperty().bindBidirectional(boundProperty, new NumberStringConverter());
         return label;
     }
 
     private Node headingLabel(String string) {
         Label label = new Label("EDF Visualizer");
         label.getStyleClass().add("main-label");
-
+        label.setPrefWidth(10000);
         return label;
     }
 }

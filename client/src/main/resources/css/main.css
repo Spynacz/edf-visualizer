@@ -1,21 +1,71 @@
+.root{
+    -fx-background-color: #fff;
+}
+
 .leftbox {
-    -fx-border-color: #f00;
-    -fx-border-width: 5;
+    -fx-background-color: #eee;
+}
+
+.leftbox > * {
+    -fx-pref-width: 200;
+}
+
+/* .task-list:focused { */
+/*     -fx-border-width: 0; */
+/*     -fx-border-color: #fff; */
+/* } */
+
+.task-list {
+    -fx-background-insets: 0;
+    -fx-border-width: 0 5 0 0;
+    -fx-border-color: #ddd;
+}
+
+.task-list .list-cell:even, .task-list .list-cell:odd {
+    -fx-font-size: 18;
+    -fx-background-color: #fff;
+    -fx-padding: 15;
+    -fx-border-width: 19;
+}
+
+.task-list .list-cell:selected {
+    -fx-background-color: #e8e8e8;
+}
+
+.add-button {
+    -fx-background-color: #fff;
+    -fx-font-size: 18;
+    -fx-border-width: 0 5 0 0;
+    -fx-border-color: #ddd;
+    /* -fx-text-fill: red; */
 }
 
 .rightbox {
-    -fx-border-color: #0f0;
-    -fx-border-width: 5;
+    -fx-background-color: #eee;
+    -fx-border-width: 0 0 0 5;
+    -fx-border-color: #ddd;
+    -fx-padding: 10;
+}
+
+.rightbox .details-title > * {
+    -fx-font-size: 24;
+}
+
+.rightbox .details > * {
+    -fx-font-size: 18
 }
 
 .centerbox {
-    -fx-border-color: #00f;
     -fx-border-width: 5;
 }
 
 .main-label {
     -fx-font-size: 32px;
     -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-background-color: #eee;
+    -fx-border-color: #000;
+    -fx-border-width: 0 0 2 0;
 }
 
 .task-entry {

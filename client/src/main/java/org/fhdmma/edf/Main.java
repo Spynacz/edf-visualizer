@@ -11,6 +11,12 @@ public class Main extends Application {
 
     static List<EDFTask> tasks = new ArrayList<>();
 
+    {
+        tasks.add(new EDFTask("Task1", 21, 37));
+        tasks.add(new EDFTask("Task2", 420, 69));
+        tasks.add(new EDFTask("Task3", 13, 37));
+    }
+
     @Override
     public void start(Stage stage) {
         stage.setScene(new Scene(new Controller().getView(), 1280, 720));
@@ -21,9 +27,9 @@ public class Main extends Application {
         launch();
     }
 
+    // temporary
     public static void addTask(EDFTask newTask) {
         tasks.add(newTask);
-        // System.out.println(tasks);
     }
 
 }
