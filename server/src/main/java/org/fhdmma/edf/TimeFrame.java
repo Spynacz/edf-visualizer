@@ -1,11 +1,16 @@
 package org.fhdmma.edf;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Queue;
-import lombok.AllArgsConstructor;
 import java.io.Serializable;
 
+@AllArgsConstructor
+@Data
 public class TimeFrame implements Serializable
 {
     enum State {
@@ -13,7 +18,7 @@ public class TimeFrame implements Serializable
         RUNNING,
         WAITING
     };
-    private interface Action extends Serializable {}
+    public interface Action extends Serializable {}
     @AllArgsConstructor
     static public class AddTask implements Action { final public Task task; }
     @AllArgsConstructor

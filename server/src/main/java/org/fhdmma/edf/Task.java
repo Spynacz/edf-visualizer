@@ -1,6 +1,9 @@
 package org.fhdmma.edf;
 import java.io.Serializable;
 
+import lombok.Data;
+
+@Data
 public class Task implements Serializable
 {
     public int id;
