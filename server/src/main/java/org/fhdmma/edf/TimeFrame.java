@@ -4,19 +4,22 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Queue;
 import lombok.AllArgsConstructor;
+import java.io.Serializable;
 
-public class TimeFrame
+public class TimeFrame implements Serializable
 {
     enum State {
         DONE,
         RUNNING,
         WAITING
     };
-    private interface Action {}
+    private interface Action extends Serializable {}
     @AllArgsConstructor
     static public class AddTask implements Action { final public Task task; }
     @AllArgsConstructor
     static public class RemoveTask implements Action { final public int id; }
+
+    final private static long serialVersionUID = 1l;
 
     final private int id;
     final private HashMap<Integer, Task> tasks;
@@ -38,6 +41,16 @@ public class TimeFrame
             states.put(task.id, State.WAITING);
         }
         startTask();
+    }
+
+    TimeFrame() {
+        id = 0;
+        tasks = new HashMap<>();
+        states = new HashMap<>();
+        nextPeriod = new HashMap<>();
+        actions = new LinkedList<>();
+        current = -1;
+        left = 0;
     }
 
     TimeFrame(TimeFrame tf) {
@@ -76,6 +89,7 @@ public class TimeFrame
                 states.remove(((RemoveTask)n).id);
             }
         }
+        actions.clear();
         if(left == 0) {
             if(current != -1)
                 states.replace(current, State.DONE);
@@ -91,10 +105,11 @@ public class TimeFrame
         actions.add(new RemoveTask(id));
     }
 
+    public HashMap<Integer, Task> getTasks() { return tasks; }
+    public HashMap<Integer, Integer> getTimeFramesNeeded() { return nextPeriod; }
+    public HashMap<Integer, State> getStates() { return states; }
     public int getTimeLeft() { return left; }
-
     public int getId() { return id; }
-
     public int getCurrentTask() { return current; }
 
     public String toString() {

@@ -1,29 +1,35 @@
 package org.fhdmma.edf;
+import java.io.IOException;
+import java.io.DataInputStream;
+import java.io.BufferedInputStream;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
-/**
- * JavaFX App
- */
-public class Main extends Application {
-
-    @Override
-    public void start(Stage stage) {
-        var javaVersion = SystemInfo.javaVersion();
-        var javafxVersion = SystemInfo.javafxVersion();
-
-        var label = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-        var scene = new Scene(new StackPane(label), 640, 480);
-        stage.setScene(scene);
-        stage.show();
-    }
+public class Main {
+    private static DataInputStream input = null;
 
     public static void main(String[] args) {
-        launch();
+        input = new DataInputStream(new BufferedInputStream(System.in));
+        String line = "";
+        while (!line.equals(";")) {
+            try {
+                line = input.readLine();
+                switch(line.charAt(0)) {
+                    case 'n':
+                        Client.getOutput().writeUTF(line);
+                        try {
+                            for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
+                                Display.show((TimeFrame)Client.getInput().readObject());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 'a':
+                        Client.getOutput().writeUTF(line);
+                        break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
-
 }
