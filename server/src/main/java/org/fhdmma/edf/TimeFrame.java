@@ -17,7 +17,7 @@ public class TimeFrame
         RUNNING,
         WAITING
     };
-    private interface Action {}
+    public interface Action {}
     @AllArgsConstructor
     static public class AddTask implements Action { final public Task task; }
     @AllArgsConstructor

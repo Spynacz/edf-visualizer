@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -118,6 +120,26 @@ public class Database {
         }
     }
 
+    private static void addActions(int timeframe_id, Queue<TimeFrame.Action> queue) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO actions(timeframe_id, task_id, action) VALUES(?, ?, ?);")) {
+            ps.setInt(1, timeframe_id);
+            for (TimeFrame.Action action : queue) {
+                if (action instanceof TimeFrame.AddTask){
+                    ps.setInt(2, ((TimeFrame.AddTask)action).task.getId());
+                    ps.setString(3, "ADD");
+                }
+                else if (action instanceof TimeFrame.RemoveTask){
+                    ps.setInt(2, ((TimeFrame.RemoveTask)action).id);
+                    ps.setString(3, "REMOVE");
+                }
+                ps.executeUpdate();
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    } 
+
     private static void addPeriodList(int timeframe_id, HashMap<Integer, Integer> periods){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
             ps.setInt(1, timeframe_id);
@@ -207,6 +229,30 @@ public class Database {
         addTaskList(tf.getId(), tf.getTasks());
         addPeriodList(tf.getId(), tf.getNextPeriod());
         addStateList(tf.getId(), tf.getStates());
+        addActions(tf.getId(), tf.getActions());
+    }
+
+    private static Queue<TimeFrame.Action> getActions(int timeframe_id){
+        Queue<TimeFrame.Action> queue = new LinkedList<>();
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM actions NATURAL JOIN tasks WHERE timeframe_id = ?")) {
+            ps.setInt(1, timeframe_id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                if (rs.getString("action").equals("ADD")) {
+                    queue.add(new TimeFrame.AddTask(new Task(
+                        rs.getInt("task_id"),
+                        rs.getInt("duration"),
+                        rs.getInt("period"))));
+                }
+                else if (rs.getString("action").equals("REMOVE")) {
+                    queue.add(new TimeFrame.RemoveTask(rs.getInt("task_id")));
+                }
+            }
+            return queue;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static TimeFrame getLatestTimeFrame() throws SQLException {
@@ -222,7 +268,7 @@ public class Database {
                     getTasksList(id),
                     getPeriod(id),
                     getStates(id),
-                    null,
+                    getActions(id),
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
                 );
