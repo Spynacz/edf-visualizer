@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 public class TimeFrame implements Serializable
 {
-    enum State {
+    public enum State {
         DONE,
         RUNNING,
         WAITING
