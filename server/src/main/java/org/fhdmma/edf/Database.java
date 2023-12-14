@@ -62,7 +62,7 @@ public class Database {
                     "FOREIGN KEY(timeframe_id) REFERENCES timeframes(id)," +
                     "FOREIGN KEY(task_id) REFERENCES tasks(id));");
             statement.executeUpdate("CREATE TABLE actions" +
-                    "(id INTEGER PRIMARY KEY," + 
+                    "(id INTEGER PRIMARY KEY," +
                     "timeframe_id INTEGER," +
                     "task_id INTEGER," +
                     "action TEXT CHECK(action in ('ADD', 'REMOVE', NULL)) NULL DEFAULT NULL," +
@@ -103,7 +103,7 @@ public class Database {
 
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {     
+            if (rs.next()) {
                 throw new InvalidAttributeValueException("Username is taken.");
             }
             System.out.println("Jest git.");
@@ -114,7 +114,7 @@ public class Database {
             ps.executeUpdate();
             ps.close();
             return true;
-        } 
+        }
         catch (SQLException e){
             throw new RuntimeException(e);
         }
@@ -138,7 +138,7 @@ public class Database {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    } 
+    }
 
     private static void addPeriodList(int timeframe_id, HashMap<Integer, Integer> periods){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
@@ -152,7 +152,7 @@ public class Database {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    } 
+    }
 
     private static void addStateList(int timeframe_id, HashMap<Integer, TimeFrame.State> states){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO states VALUES(?, ?, ?);")){
@@ -259,7 +259,7 @@ public class Database {
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
             ResultSet rs = ps.executeQuery();
-            
+
             // TODO: Make it return all values - not nulls
             if (rs.next()) {
                 int id = rs.getInt("id");

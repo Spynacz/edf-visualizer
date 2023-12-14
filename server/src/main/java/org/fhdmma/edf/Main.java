@@ -29,8 +29,8 @@ public class Main
                                         Integer.parseInt(a[1])));
                             break;
                     }
-                } catch (EOFException e) { 
-                    break; 
+                } catch (EOFException e) {
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

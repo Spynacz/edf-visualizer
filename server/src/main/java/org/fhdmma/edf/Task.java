@@ -17,8 +17,8 @@ public class Task implements Serializable
     }
 
     public String toString() {
-        return "{ id: " + id + 
-            ", duration: " + duration + 
+        return "{ id: " + id +
+            ", duration: " + duration +
             ", period: " + period + " }";
     }
 }
