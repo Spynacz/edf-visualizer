@@ -30,7 +30,8 @@ public class TimeFrame implements Serializable
     final private HashMap<Integer, Task> tasks;
     final private HashMap<Integer, Integer> nextPeriod;
     final private HashMap<Integer, State> states;
-    final private Queue<Action> actions;
+    final private List<Action> change;
+    final private int parent;
     private int current;
     private int left;
 
@@ -39,7 +40,8 @@ public class TimeFrame implements Serializable
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
         tasks = new HashMap<>();
-        actions = new LinkedList<>();
+        change = null;
+        parent = -1;
         for(var task: t) {
             tasks.put(task.id, task);
             nextPeriod.put(task.id, task.period);
@@ -53,31 +55,39 @@ public class TimeFrame implements Serializable
         tasks = new HashMap<>();
         states = new HashMap<>();
         nextPeriod = new HashMap<>();
-        actions = new LinkedList<>();
+        change = null;
         current = -1;
         left = 0;
+        parent = -1;
     }
 
-    TimeFrame(TimeFrame tf) {
-        id = tf.id+1;
+    TimeFrame(TimeFrame tf, List<Action> l) {
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
-        actions = tf.actions;
-        tasks = tf.tasks;
-        left = tf.left-((tf.left>0)?1:0);
-        current = tf.current;
-        states.putAll(tf.states);
+        id = tf.getId()+1; //PLACEHOLDER
+        change = l;
+        parent = tf.getId();
+        left = tf.getTimeLeft()-((tf.getTimeLeft()>0)?1:0);
+        current = tf.getCurrentTask();
+        states.putAll(tf.getStates());
+        if(l!=null && !l.isEmpty()) {
+            tasks = tf.getTasks();
+        } else {
+            tasks = new HashMap<>(tf.getTasks());
+        }
         int next;
-        for(var n: tf.nextPeriod.keySet()) {
-            next = tf.nextPeriod.get(n);
+
+        for(var n: tf.getTimeFramesNeeded().keySet()) {
+            next = tf.getTimeFramesNeeded().get(n);
             if(next-1!=0) {
                 nextPeriod.put(n, next-1);
+                System.out.println(nextPeriod + " " + n + " " + String.valueOf(next-1));
             } else {
                 nextPeriod.put(n, tasks.get(n).period);
                 states.replace(n, State.WAITING);
             }
         }
-        for(var n: actions) {
+        for(var n: l) {
             Task t;
             if(n instanceof AddTask) {
                 t = ((AddTask)n).task;
@@ -94,20 +104,11 @@ public class TimeFrame implements Serializable
                 states.remove(((RemoveTask)n).id);
             }
         }
-        actions.clear();
         if(left == 0) {
             if(current != -1)
                 states.replace(current, State.DONE);
             startTask();
         }
-    }
-
-    public void addTask(Task t) {
-        actions.add(new AddTask(t));
-    }
-
-    public void removeTask(int id) {
-        actions.add(new RemoveTask(id));
     }
 
     public HashMap<Integer, Task> getTasks() { return tasks; }
@@ -116,6 +117,8 @@ public class TimeFrame implements Serializable
     public int getTimeLeft() { return left; }
     public int getId() { return id; }
     public int getCurrentTask() { return current; }
+    public int getParent() { return parent; }
+    public List<Action> getChange() { return change; }
 
     public String toString() {
         return "{ tasks: " + tasks + ", states: " + states + ", nextPeriod: " +

@@ -1,6 +1,8 @@
 package org.fhdmma.edf;
 import java.io.IOException;
 import java.io.EOFException;
+import java.util.List;
+import java.util.LinkedList;
 
 
 public class Main
@@ -9,6 +11,7 @@ public class Main
         TimeFrame tf = new TimeFrame();
         int task_id = 0;
         String line = "";
+        List<TimeFrame.Action> changes = new LinkedList<>();
 
         try {
             Server.start();
@@ -18,15 +21,18 @@ public class Main
                     switch(line.charAt(0)) {
                         case 'n':
                             for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
-                                tf = new TimeFrame(tf);
+                                tf = new TimeFrame(tf, changes);
+                                changes.clear();
+                                System.out.println(tf);
                                 Server.getOutput().writeObject(tf);
                             }
                             break;
                         case 'a':
                             var a = line.substring(1).split(",");
-                            tf.addTask(new Task(task_id++,
-                                        Integer.parseInt(a[0]),
-                                        Integer.parseInt(a[1])));
+                            changes.add(new TimeFrame.AddTask(
+                                        new Task(task_id++,
+                                            Integer.parseInt(a[0]),
+                                            Integer.parseInt(a[1]))));
                             break;
                     }
                 } catch (EOFException e) {

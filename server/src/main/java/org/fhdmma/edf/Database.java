@@ -15,6 +15,7 @@ import javax.management.InvalidAttributeValueException;
 public class Database {
     static Connection connection;
     static Statement statement;
+    /*
 
     public static void connect() throws SQLException {
         try {
@@ -374,4 +375,5 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
+    */
 }
