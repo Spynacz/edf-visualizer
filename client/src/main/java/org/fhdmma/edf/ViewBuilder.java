@@ -163,6 +163,7 @@ public class ViewBuilder implements Builder<Region> {
         HBox period = new HBox(6, new Label("Period:"), hboxSpacer(), periodText);
 
         Button confirm = new Button("Confirm");
+        confirm.disableProperty().bind(model.okToAddProperty().not());
         confirm.setOnAction(evt2 -> {
             addTask.accept(() -> stage.close());
         });

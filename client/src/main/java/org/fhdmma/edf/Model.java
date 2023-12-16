@@ -2,8 +2,10 @@ package org.fhdmma.edf;
 
 import java.util.List;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -22,6 +24,8 @@ public class Model {
     private final StringProperty selectedTitle = new SimpleStringProperty("");
     private final StringProperty selectedDuration = new SimpleStringProperty("");
     private final StringProperty selectedPeriod = new SimpleStringProperty("");
+
+    private final BooleanProperty okToAdd = new SimpleBooleanProperty(false);
 
     public String getTitle() {
         return title.get();
@@ -113,5 +117,17 @@ public class Model {
 
     public void setSelectedPeriod(String period) {
         this.selectedPeriod.set(period);
+    }
+
+    public Boolean isOkToAdd() {
+        return okToAdd.get();
+    }
+
+    public void setOkToAdd(Boolean value) {
+        okToAdd.set(value);
+    }
+
+    public BooleanProperty okToAddProperty() {
+        return okToAdd;
     }
 }
