@@ -16,7 +16,6 @@ public class Database {
     static Connection connection;
     static Statement statement;
     /*
-
     public static void connect() throws SQLException {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:server.db");
