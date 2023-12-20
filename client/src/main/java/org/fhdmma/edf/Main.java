@@ -8,6 +8,8 @@ public class Main {
 
     public static void main(String[] args) {
         input = new DataInputStream(new BufferedInputStream(System.in));
+        Client.setHost("localhost");
+        Client.setPort(9999);
         String line = "";
         while (!line.equals(";")) {
             try {
@@ -29,6 +31,11 @@ public class Main {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                Client.disconnect();
+                } catch (IOException err) {
+                    err.printStackTrace();
+                }
             }
         }
     }

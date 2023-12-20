@@ -81,7 +81,6 @@ public class TimeFrame implements Serializable
             next = tf.getTimeFramesNeeded().get(n);
             if(next-1!=0) {
                 nextPeriod.put(n, next-1);
-                System.out.println(nextPeriod + " " + n + " " + String.valueOf(next-1));
             } else {
                 nextPeriod.put(n, tasks.get(n).period);
                 states.replace(n, State.WAITING);

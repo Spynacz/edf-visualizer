@@ -35,7 +35,6 @@ public class Server implements Closeable, Runnable {
                         for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
                             tf = new TimeFrame(tf, changes);
                             changes.clear();
-                            System.out.println(tf);
                             out.writeObject(tf);
                         }
                         break;

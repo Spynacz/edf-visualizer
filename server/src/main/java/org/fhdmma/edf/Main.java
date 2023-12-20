@@ -10,11 +10,11 @@ public class Main
     public static void main(String[] args) {
         ExecutorService exe = Executors.newFixedThreadPool(10);
         try {
-            var s = new ServerSocet(9999);
+            var s = new ServerSocket(9999);
             for(int i=0;i<10;i++)
                 exe.execute(new Server(s));
         } catch (IOException e) {
-            e.printStacTrace();
+            e.printStackTrace();
             System.out.println("Cannot start server");
         }
     }
