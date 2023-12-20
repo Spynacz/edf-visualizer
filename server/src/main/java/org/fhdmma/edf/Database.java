@@ -7,15 +7,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import javax.management.InvalidAttributeValueException;
 
 public class Database {
     static Connection connection;
     static Statement statement;
-    /*
     public static void connect() throws SQLException {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:server.db");
@@ -120,10 +119,10 @@ public class Database {
         }
     }
 
-    private static void addActions(int timeframe_id, Queue<TimeFrame.Action> queue) {
+    private static void addActions(int timeframe_id, List<TimeFrame.Action> actions) {
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO actions(timeframe_id, task_id, action) VALUES(?, ?, ?);")) {
             ps.setInt(1, timeframe_id);
-            for (TimeFrame.Action action : queue) {
+            for (TimeFrame.Action action : actions) {
                 if (action instanceof TimeFrame.AddTask){
                     ps.setInt(2, ((TimeFrame.AddTask)action).task.getId());
                     ps.setString(3, "ADD");
@@ -229,11 +228,11 @@ public class Database {
         addTaskList(tf.getId(), tf.getTasks());
         addPeriodList(tf.getId(), tf.getNextPeriod());
         addStateList(tf.getId(), tf.getStates());
-        addActions(tf.getId(), tf.getActions());
+        addActions(tf.getId(), tf.getChanges());
     }
 
-    private static Queue<TimeFrame.Action> getActions(int timeframe_id){
-        Queue<TimeFrame.Action> queue = new LinkedList<>();
+    private static List<TimeFrame.Action> getChanges(int timeframe_id){
+        List<TimeFrame.Action> queue = new LinkedList<>();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM actions NATURAL JOIN tasks WHERE timeframe_id = ?")) {
             ps.setInt(1, timeframe_id);
             ResultSet rs = ps.executeQuery();
@@ -268,7 +267,8 @@ public class Database {
                     getTasksList(id),
                     getPeriod(id),
                     getStates(id),
-                    getActions(id),
+                    getChanges(id),
+                    0, //TODO: Change 0 to parent of timeframe
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
                 );
@@ -374,5 +374,4 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
-    */
 }

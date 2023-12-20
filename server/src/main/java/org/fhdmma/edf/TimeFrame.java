@@ -30,7 +30,7 @@ public class TimeFrame implements Serializable
     final private HashMap<Integer, Task> tasks;
     final private HashMap<Integer, Integer> nextPeriod;
     final private HashMap<Integer, State> states;
-    final private List<Action> change;
+    final private List<Action> changes;
     final private int parent;
     private int current;
     private int left;
@@ -40,7 +40,7 @@ public class TimeFrame implements Serializable
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
         tasks = new HashMap<>();
-        change = null;
+        changes = null;
         parent = -1;
         for(var task: t) {
             tasks.put(task.id, task);
@@ -55,7 +55,7 @@ public class TimeFrame implements Serializable
         tasks = new HashMap<>();
         states = new HashMap<>();
         nextPeriod = new HashMap<>();
-        change = null;
+        changes = null;
         current = -1;
         left = 0;
         parent = -1;
@@ -65,7 +65,7 @@ public class TimeFrame implements Serializable
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
         id = tf.getId()+1; //PLACEHOLDER
-        change = l;
+        changes = l;
         parent = tf.getId();
         left = tf.getTimeLeft()-((tf.getTimeLeft()>0)?1:0);
         current = tf.getCurrentTask();
@@ -117,7 +117,7 @@ public class TimeFrame implements Serializable
     public int getId() { return id; }
     public int getCurrentTask() { return current; }
     public int getParent() { return parent; }
-    public List<Action> getChange() { return change; }
+    public List<Action> getChanges() { return changes; }
 
     public String toString() {
         return "{ tasks: " + tasks + ", states: " + states + ", nextPeriod: " +

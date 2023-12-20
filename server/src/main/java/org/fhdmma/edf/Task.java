@@ -1,11 +1,13 @@
 package org.fhdmma.edf;
 import java.io.Serializable;
+import lombok.Getter;
 
-public class Task implements Serializable
+@Getter
+public final class Task implements Serializable
 {
-    public int id;
-    public int duration;
-    public int period;
+    public final int id;
+    public final int duration;
+    public final int period;
 
     public Task(int i, int d, int p) {
         duration = d;
