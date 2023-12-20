@@ -9,12 +9,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Random; //TODO: Remove after implementing GetLatestTask
+import java.lang.Math; //TODO: Also remove this
 import javax.management.InvalidAttributeValueException;
 
 public class Database {
-    static Connection connection;
-    static Statement statement;
+    private static Connection connection;
+    private static Statement statement;
+    private static Random rand = new Random();
+
+    public static Boolean isValid() throws SQLException {
+        return connection.isValid(100);
+    }
     public static void connect() throws SQLException {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:server.db");
@@ -255,14 +261,13 @@ public class Database {
     }
 
     public static TimeFrame getLatestTimeFrame() throws SQLException {
-        try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
-            ResultSet rs = ps.executeQuery();
+        PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
+        ResultSet rs = ps.executeQuery();
 
-            // TODO: Make it return all values - not nulls
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                return new TimeFrame(
+        // TODO: Make it return all values - not nulls
+        if (rs.next()) {
+            int id = rs.getInt("id");
+            return new TimeFrame(
                     id,
                     getTasksList(id),
                     getPeriod(id),
@@ -271,14 +276,16 @@ public class Database {
                     0, //TODO: Change 0 to parent of timeframe
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
-                );
-            }
-            throw new SQLException("Getting timeframe failed, no rows obtained.");
+                    );
         }
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return new TimeFrame();
     }
+
+    public static Task getLatestTask() throws SQLException {
+        //TODO: Implement this
+        return new Task(Math.abs(rand.nextInt()), 0, 0);
+    }
+
 
     private static HashMap<Integer, Integer> getPeriod(int timeframe_id) {
         HashMap<Integer, Integer> period = new HashMap<>();

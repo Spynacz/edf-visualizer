@@ -48,30 +48,4 @@ public class TimeFrame implements Serializable
         return "{ tasks: " + tasks + ", states: " + states + ", nextPeriod: " +
             nextPeriod + ", left: " + left + " }";
     }
-
-    private int getEDId() {
-        int min_id = -1;
-        Task t;
-        int id;
-        Integer period;
-        Integer min = Integer.MAX_VALUE;
-        var i = tasks.entrySet().iterator();
-        while(i.hasNext()) {
-            id = i.next().getKey();
-            period = tasks.get(id).period;
-            if(states.get(id) == State.WAITING && min > period) {
-                min = period;
-                min_id = id;
-            }
-        }
-        return min_id;
-    }
-
-    private void startTask() {
-        current = getEDId();
-        if(current != -1) {
-            left = tasks.get(current).duration;
-            states.replace(current, State.RUNNING);
-        }
-    }
 }

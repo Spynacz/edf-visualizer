@@ -43,9 +43,9 @@ public class TimeFrame implements Serializable
         changes = null;
         parent = -1;
         for(var task: t) {
-            tasks.put(task.id, task);
-            nextPeriod.put(task.id, task.period);
-            states.put(task.id, State.WAITING);
+            tasks.put(task.getId(), task);
+            nextPeriod.put(task.getId(), task.getPeriod());
+            states.put(task.getId(), State.WAITING);
         }
         startTask();
     }
@@ -82,7 +82,7 @@ public class TimeFrame implements Serializable
             if(next-1!=0) {
                 nextPeriod.put(n, next-1);
             } else {
-                nextPeriod.put(n, tasks.get(n).period);
+                nextPeriod.put(n, tasks.get(n).getPeriod());
                 states.replace(n, State.WAITING);
             }
         }
@@ -90,9 +90,9 @@ public class TimeFrame implements Serializable
             Task t;
             if(n instanceof AddTask) {
                 t = ((AddTask)n).task;
-                tasks.put(t.id, t);
-                nextPeriod.put(t.id, t.period);
-                states.put(t.id, State.WAITING);
+                tasks.put(t.getId(), t);
+                nextPeriod.put(t.getId(), t.getPeriod());
+                states.put(t.getId(), State.WAITING);
             } else if (n instanceof RemoveTask) {
                 if(current == ((RemoveTask)n).id) {
                     current = -1;
@@ -133,7 +133,7 @@ public class TimeFrame implements Serializable
         var i = tasks.entrySet().iterator();
         while(i.hasNext()) {
             id = i.next().getKey();
-            period = tasks.get(id).period;
+            period = tasks.get(id).getPeriod();
             if(states.get(id) == State.WAITING && min > period) {
                 min = period;
                 min_id = id;
@@ -145,7 +145,7 @@ public class TimeFrame implements Serializable
     private void startTask() {
         current = getEDId();
         if(current != -1) {
-            left = tasks.get(current).duration;
+            left = tasks.get(current).getDuration();
             states.replace(current, State.RUNNING);
         }
     }
