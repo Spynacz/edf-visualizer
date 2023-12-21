@@ -61,10 +61,10 @@ public class TimeFrame implements Serializable
         parent = -1;
     }
 
-    TimeFrame(TimeFrame tf, List<Action> l) {
+    TimeFrame(TimeFrame tf, List<Action> l, int identificator) {
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
-        id = tf.getId()+1; //PLACEHOLDER
+        id = identificator;
         changes = l;
         parent = tf.getId();
         left = tf.getTimeLeft()-((tf.getTimeLeft()>0)?1:0);

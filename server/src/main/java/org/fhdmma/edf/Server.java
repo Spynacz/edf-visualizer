@@ -26,12 +26,11 @@ public class Server implements Closeable, Runnable {
     public void run() {
         String line = "";
         List<TimeFrame.Action> changes = new LinkedList<>();
-        TimeFrame tf = null;
+        TimeFrame tf = new TimeFrame();
         int task_id;
 
         try {
             Database.connect();
-            tf = Database.getLatestTimeFrame();
             task_id = Database.getLatestTask().getId();
         } catch(SQLException e) {
             e.printStackTrace();
@@ -58,13 +57,14 @@ public class Server implements Closeable, Runnable {
                 switch(line.charAt(0)) {
                     case 'n':
                         for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
-                            tf = new TimeFrame(tf, changes);
                             try {
-                                Database.addTimeFrame(tf);
-                            } catch(RuntimeException e) {
+                                tf = new TimeFrame(tf, changes,
+                                        Database.getLatestTimeFrame().getId()+1);
+                            } catch(SQLException e) {
                                 e.printStackTrace();
-                                System.out.println("Couldn't add TimeFrame to DB");
+                                System.out.println("Couldn't get latest timeframe");
                             }
+                            Main.saveTimeFrame(tf);
                             changes.clear();
                             out.writeObject(tf);
                         }
