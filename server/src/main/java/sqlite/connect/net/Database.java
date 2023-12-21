@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import org.fhdmma.edf.*;
@@ -95,7 +96,7 @@ class Database {
         }
     }
 
-    public static void insertAction(int timeframe_id, int task_id, String action) {
+    public static void insertChange(int timeframe_id, int task_id, String action) {
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO actions(timeframe_id, task_id, action) VALUES(?, ?, ?);")) {
             ps.setInt(1, timeframe_id);
             ps.setInt(2, task_id);
@@ -185,23 +186,23 @@ class Database {
         return false;
     }
 
-    public static Queue<TimeFrame.Action> retrieveActions(int timeframe_id){
-        Queue<TimeFrame.Action> queue = new LinkedList<>();
+    public static List<TimeFrame.Action> retrieveChanges(int timeframe_id){
+        List<TimeFrame.Action> list = new LinkedList<>();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM actions NATURAL JOIN tasks WHERE timeframe_id = ?")) {
             ps.setInt(1, timeframe_id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 if (rs.getString("action").equals("ADD")) {
-                    queue.add(new TimeFrame.AddTask(new Task(
+                    list.add(new TimeFrame.AddTask(new Task(
                         rs.getInt("task_id"),
                         rs.getInt("duration"),
                         rs.getInt("period"))));
                 }
                 else if (rs.getString("action").equals("REMOVE")) {
-                    queue.add(new TimeFrame.RemoveTask(rs.getInt("task_id")));
+                    list.add(new TimeFrame.RemoveTask(rs.getInt("task_id")));
                 }
             }
-            return queue;
+            return list;
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
@@ -236,7 +237,7 @@ class Database {
                     retrieveTasksList(id),
                     retrievePeriod(id),
                     retrieveStates(id),
-                    retrieveActions(id),
+                    retrieveChanges(id),
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
                 );

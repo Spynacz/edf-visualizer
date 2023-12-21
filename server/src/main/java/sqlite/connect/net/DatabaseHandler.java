@@ -2,8 +2,8 @@ package sqlite.connect.net;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -41,13 +41,13 @@ public class DatabaseHandler {
         return Database.insertUser(username, password1);
     }
 
-    private static void addActionList(int timeframe_id, Queue<TimeFrame.Action> queue) {
+    private static void addChangeList(int timeframe_id, List<TimeFrame.Action> queue) {
         for (TimeFrame.Action action : queue) {
             if (action instanceof TimeFrame.AddTask){
-                Database.insertAction(timeframe_id, ((TimeFrame.AddTask)action).task.getId(), "ADD");
+                Database.insertChange(timeframe_id, ((TimeFrame.AddTask)action).task.getId(), "ADD");
             }
             else if (action instanceof TimeFrame.RemoveTask){
-                Database.insertAction(timeframe_id, ((TimeFrame.RemoveTask)action).id, "REMOVE");
+                Database.insertChange(timeframe_id, ((TimeFrame.RemoveTask)action).id, "REMOVE");
             }
         }    
     } 
@@ -79,7 +79,7 @@ public class DatabaseHandler {
         addTaskList(tf.getId(), tf.getTasks());
         addPeriodList(tf.getId(), tf.getNextPeriod());
         addStateList(tf.getId(), tf.getStates());
-        addActionList(tf.getId(), tf.getActions());
+        addChangeList(tf.getId(), tf.getChanges());
     }
 
     public static Task getLatestTask() {
