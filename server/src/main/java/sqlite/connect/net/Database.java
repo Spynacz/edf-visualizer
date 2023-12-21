@@ -61,8 +61,10 @@ class Database {
                     "period INTEGER);");
             statement.executeUpdate("CREATE TABLE timeframes" +
                     "(id INTEGER PRIMARY KEY, "+
+                    "parent_id INTEGER NULL, "+
                     "active_task INTEGER, "+
-                    "time_left INTEGER);");
+                    "time_left INTEGER, "+
+                    "FOREIGN KEY(parent_id) REFERENCES timeframes(id));");
             statement.executeUpdate("CREATE TABLE timeframes_tasks" +
                     "(timeframe_id INTEGER," +
                     "task_id INTEGER," +
@@ -161,10 +163,11 @@ class Database {
 
     public static void insertTimeFrame(TimeFrame tf){
         try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?)");
             ps.setInt(1, tf.getId());
-            ps.setInt(2, tf.getCurrentTask());
-            ps.setInt(3, tf.getTimeLeft());
+            ps.setInt(2, tf.getParent());
+            ps.setInt(3, tf.getCurrentTask());
+            ps.setInt(4, tf.getTimeLeft());
             ps.executeUpdate();
         }
         catch (SQLException e) {
@@ -229,7 +232,6 @@ class Database {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
             ResultSet rs = ps.executeQuery();
             
-            // TODO: Make it return all values - not nulls
             if (rs.next()) {
                 int id = rs.getInt("id");
                 return new TimeFrame(
@@ -238,6 +240,7 @@ class Database {
                     retrievePeriod(id),
                     retrieveStates(id),
                     retrieveChanges(id),
+                    rs.getInt("parent_id"),
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
                 );
