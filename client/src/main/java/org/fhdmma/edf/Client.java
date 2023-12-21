@@ -7,9 +7,9 @@ import java.net.UnknownHostException;
 import java.net.ConnectException;
 
 public final class Client {
-    private static Socket socket = null;
-    private static int port = 9999;
-    private static String address = "localhost";
+    private static Socket socket;
+    private static int port;
+    private static String address;
     private static DataOutputStream out;
     private static ObjectInputStream in;
 
@@ -31,6 +31,9 @@ public final class Client {
         out.close();
         socket.close();
     }
+
+    public static void setPort(int p) { port = p; }
+    public static void setHost(String a) { address = a; }
 
     public static DataOutputStream getOutput() throws IOException, UnknownHostException {
         if(socket == null || !socket.isConnected())
