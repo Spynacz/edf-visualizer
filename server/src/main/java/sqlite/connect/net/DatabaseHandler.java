@@ -68,6 +68,10 @@ public class DatabaseHandler {
         return Database.insertTask(timeframe_id, duration, period);
     }
 
+    public static Task addTask(int timeframe_id, Task task) {
+        return Database.insertTask(timeframe_id, task.getId(), task.getDuration(), task.getPeriod());
+    }
+
     private static void addTaskList(int timeframe_id, HashMap<Integer, Task> tasks) {
         for (Task task : tasks.values()) {
             Database.insertTask(timeframe_id, task.getDuration(), task.getPeriod());

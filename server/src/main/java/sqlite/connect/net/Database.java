@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.fhdmma.edf.*;
 
@@ -145,9 +144,27 @@ class Database {
     }  
 
     public static Task insertTask(int timeframe_id, int duration, int period) {
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO tasks(duration, period) VALUES(?, ?)")) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO tasks(duration, period) VALUES(?, ?);")) {
             ps.setInt(1, duration);
             ps.setInt(2, period);
+            ps.executeUpdate();
+            
+            Task task = retrieveTask(period, duration);
+
+            insertM2M(timeframe_id, task.getId());
+
+            return task;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Task insertTask(int timeframe_id, int task_id, int duration, int period) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO tasks VALUES(?, ?, ?);")) {
+            ps.setInt(1, task_id);
+            ps.setInt(2, duration);
+            ps.setInt(3, period);
             ps.executeUpdate();
             
             Task task = retrieveTask(period, duration);
@@ -291,7 +308,7 @@ class Database {
     }
 
     public static Task retrieveTask(int period, int duration) {
-        try (PreparedStatement ps = connection.prepareStatement("SELECT id, duration, period FROM tasks" +  
+        try (PreparedStatement ps = connection.prepareStatement("SELECT id, duration, period FROM tasks " +  
                                                                 "WHERE duration = ? AND period = ? ORDER BY id DESC LIMIT 1");) {
             // TODO: Race condition possible.
             ps.setInt(1, duration);
@@ -306,7 +323,7 @@ class Database {
             return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
         }
         catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); 
         }
     }
 
