@@ -208,6 +208,21 @@ class Database {
         }
     }
 
+    public static Task retrieveLatestTask() {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks ORDER BY id DESC LIMIT 1")) {
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+
+            return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static TimeFrame retrieveLatestTimeFrame() throws SQLException {
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");

@@ -82,6 +82,10 @@ public class DatabaseHandler {
         addActionList(tf.getId(), tf.getActions());
     }
 
+    public static Task getLatestTask() {
+        return Database.retrieveLatestTask();
+    }    
+    
     public static TimeFrame getLatestTimeFrame() throws SQLException {
         return Database.retrieveLatestTimeFrame();
     }
