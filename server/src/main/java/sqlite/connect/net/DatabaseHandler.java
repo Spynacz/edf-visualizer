@@ -21,6 +21,10 @@ public class DatabaseHandler {
         Database.disconnect();
     }
 
+    public static Boolean isValid() {
+        return Database.isValid();
+    }
+
     public static User userLogin(String username, String password) throws SQLException {
         return Database.retrieveUser(username, password);
     }

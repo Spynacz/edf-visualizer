@@ -30,6 +30,16 @@ class Database {
         connection.close();
     }
 
+    public static Boolean isValid() {
+        try {
+            return connection.isValid(100);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void createDatabase() throws SQLException {
         try {
             statement.executeUpdate("DROP TABLE IF EXISTS users");
