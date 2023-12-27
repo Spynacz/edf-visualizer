@@ -5,7 +5,7 @@ public final class Task implements Serializable
 {
     final private static long serialVersionUID = 1l;
 
-    private final int id;
+    private final long id;
     private final int duration;
     private final int period;
 
@@ -15,7 +15,7 @@ public final class Task implements Serializable
         id = i;
     }
 
-    public int getId() { return id; }
+    public long getId() { return id; }
     public int getDuration() { return duration; }
     public int getPeriod() { return period; }
 

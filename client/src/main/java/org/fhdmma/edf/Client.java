@@ -24,6 +24,7 @@ public final class Client {
 
             } catch (ConnectException e) {}
         }
+        System.out.println("Connected to server");
     }
 
     public static void disconnect() throws IOException {

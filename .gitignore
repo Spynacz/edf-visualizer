@@ -43,13 +43,6 @@ buildNumber.properties
 
 .settings
 .factorypath
-# cscope, ctags
-tags
-cscope.out
-# vim
-.vimrc
-server/.vimrc
-client/.vimrc
 # maven wrapper
 .mvn
 mvnw

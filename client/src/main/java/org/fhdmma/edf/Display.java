@@ -2,8 +2,8 @@ package org.fhdmma.edf;
 import java.util.HashMap;
 
 public final class Display {
-    private static HashMap<Integer, Integer> prevPeriods = null;
-    private static HashMap<Integer, Boolean> prevColors = null;
+    private static HashMap<Long, Integer> prevPeriods = null;
+    private static HashMap<Long, Boolean> prevColors = null;
     private static TimeFrame prev = null;
 
     private Display() {}

@@ -23,26 +23,24 @@ public class Main
             e.printStackTrace();
             System.out.println("Cannot start server");
         }
+        while(true) {
+            if(!saveList.isEmpty())
+                save();
+        }
     }
+
     public static void saveTimeFrame(TimeFrame tf) {
         saveList.add(tf);
     }
+
     private static void save() {
-        while(true) {
-            if(saveList.isEmpty()) {
-                try {
-                    Thread.sleep(500);
-                } catch(InterruptedException e) { }
-            } else {
-                try {
-                    if(!Database.isValid())
-                        Database.connect();
-                    Database.addTimeFrame(saveList.remove());
-                } catch(SQLException e) {
-                    e.printStackTrace();
-                    System.out.println("Could'nt add timeframe to DB");
-                }
-            }
+        try {
+            if(!Database.isValid())
+                Database.connect();
+            Database.addTimeFrame(saveList.remove());
+        } catch(SQLException e) {
+            e.printStackTrace();
+            System.out.println("Couldn't add timeframe to DB");
         }
     }
 }

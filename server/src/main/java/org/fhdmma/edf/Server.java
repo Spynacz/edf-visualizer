@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.LinkedList;
@@ -18,6 +19,7 @@ public class Server implements Closeable, Runnable {
 
     public Server(ServerSocket server) throws IOException {
         socket = server.accept();
+        System.out.println("Client connected");
         in = new DataInputStream(new BufferedInputStream(
                     socket.getInputStream()));
         out = new ObjectOutputStream(socket.getOutputStream());
@@ -27,11 +29,9 @@ public class Server implements Closeable, Runnable {
         String line = "";
         List<TimeFrame.Action> changes = new LinkedList<>();
         TimeFrame tf = new TimeFrame();
-        int task_id;
 
         try {
             Database.connect();
-            task_id = Database.getLatestTask().getId();
         } catch(SQLException e) {
             e.printStackTrace();
             System.out.println("Database error, shutting down connection");
@@ -57,13 +57,7 @@ public class Server implements Closeable, Runnable {
                 switch(line.charAt(0)) {
                     case 'n':
                         for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
-                            try {
-                                tf = new TimeFrame(tf, changes,
-                                        Database.getLatestTimeFrame().getId()+1);
-                            } catch(SQLException e) {
-                                e.printStackTrace();
-                                System.out.println("Couldn't get latest timeframe");
-                            }
+                            tf = new TimeFrame(tf, changes);
                             Main.saveTimeFrame(tf);
                             changes.clear();
                             out.writeObject(tf);
@@ -72,8 +66,7 @@ public class Server implements Closeable, Runnable {
                     case 'a':
                         var a = line.substring(1).split(",");
                         changes.add(new TimeFrame.AddTask(
-                                    new Task(task_id++,
-                                        Integer.parseInt(a[0]),
+                                    new Task(Integer.parseInt(a[0]),
                                         Integer.parseInt(a[1]))));
                         break;
                 }
@@ -90,7 +83,16 @@ public class Server implements Closeable, Runnable {
                     err.printStackTrace();
                 }
                 return;
-            }catch (IOException e) {
+            } catch(SocketException e) {
+                System.out.println("Client disconnected");
+                try {
+                    Database.disconnect();
+                } catch(SQLException err) {
+                    err.printStackTrace();
+                    System.out.println("Couldn't disconnect from DB");
+                }
+                return;
+            } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }

@@ -125,12 +125,12 @@ public class Database {
         }
     }
 
-    private static void addActions(int timeframe_id, List<TimeFrame.Action> actions) {
+    private static void addActions(long timeframe_id, List<TimeFrame.Action> actions) {
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO actions(timeframe_id, task_id, action) VALUES(?, ?, ?);")) {
-            ps.setInt(1, timeframe_id);
+            ps.setLong(1, timeframe_id);
             for (TimeFrame.Action action : actions) {
                 if (action instanceof TimeFrame.AddTask){
-                    ps.setInt(2, ((TimeFrame.AddTask)action).task.getId());
+                    ps.setLong(2, ((TimeFrame.AddTask)action).task.getId());
                     ps.setString(3, "ADD");
                 }
                 else if (action instanceof TimeFrame.RemoveTask){
@@ -145,11 +145,11 @@ public class Database {
         }
     }
 
-    private static void addPeriodList(int timeframe_id, HashMap<Integer, Integer> periods){
+    private static void addPeriodList(long timeframe_id, HashMap<Long, Integer> periods){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
-            ps.setInt(1, timeframe_id);
-            for (Map.Entry<Integer, Integer> period : periods.entrySet()) {
-                ps.setInt(2, period.getKey());
+            ps.setLong(1, timeframe_id);
+            for (Map.Entry<Long, Integer> period : periods.entrySet()) {
+                ps.setLong(2, period.getKey());
                 ps.setInt(3, period.getValue());
                 ps.executeUpdate();
             }
@@ -159,11 +159,11 @@ public class Database {
         }
     }
 
-    private static void addStateList(int timeframe_id, HashMap<Integer, TimeFrame.State> states){
+    private static void addStateList(long timeframe_id, HashMap<Long, TimeFrame.State> states){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO states VALUES(?, ?, ?);")){
-            ps.setInt(1, timeframe_id);
-            for (Map.Entry<Integer, TimeFrame.State> state : states.entrySet()) {
-                ps.setInt(2, state.getKey());
+            ps.setLong(1, timeframe_id);
+            for (Map.Entry<Long, TimeFrame.State> state : states.entrySet()) {
+                ps.setLong(2, state.getKey());
                 ps.setString(3, state.getValue().toString());
                 ps.executeUpdate();
             }
@@ -173,7 +173,7 @@ public class Database {
         }
     }
 
-    public static Task addTask(int timeframe_id, int duration, int period) {
+    public static Task addTask(long timeframe_id, int duration, int period) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO tasks(duration, period) VALUES(?, ?)",
                                                                Statement.RETURN_GENERATED_KEYS);
@@ -196,8 +196,8 @@ public class Database {
                 Task task = new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
                 try {
                     ps = connection.prepareStatement("INSERT OR IGNORE INTO timeframes_tasks VALUES(?, ?)");
-                    ps.setInt(1, timeframe_id);
-                    ps.setInt(2, task.getId());
+                    ps.setLong(1, timeframe_id);
+                    ps.setLong(2, task.getId());
                     ps.executeUpdate();
                 }
                 catch(SQLException e) {
@@ -214,7 +214,7 @@ public class Database {
         }
     }
 
-    private static void addTaskList(int timeframe_id, HashMap<Integer, Task> tasks) {
+    private static void addTaskList(long timeframe_id, HashMap<Long, Task> tasks) {
         for (Task task : tasks.values()) {
             addTask(timeframe_id, task.getDuration(), task.getPeriod());
         }
@@ -223,8 +223,8 @@ public class Database {
     public static void addTimeFrame(TimeFrame tf) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
-            ps.setInt(1, tf.getId());
-            ps.setInt(2, tf.getCurrentTask());
+            ps.setLong(1, tf.getId());
+            ps.setLong(2, tf.getCurrentTask());
             ps.setInt(3, tf.getTimeLeft());
             ps.executeUpdate();
         }
@@ -287,17 +287,17 @@ public class Database {
     }
 
 
-    private static HashMap<Integer, Integer> getPeriod(int timeframe_id) {
-        HashMap<Integer, Integer> period = new HashMap<>();
+    private static HashMap<Long, Integer> getPeriod(long timeframe_id) {
+        HashMap<Long, Integer> period = new HashMap<>();
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM periods WHERE timeframe_id = ?;");
-            ps.setInt(1, timeframe_id);
+            ps.setLong(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()){
                 period.put(
-                    rs.getInt("task_id"),
+                    rs.getLong("task_id"),
                     rs.getInt("timeframes_needed"));
             }
             return period;
@@ -307,17 +307,17 @@ public class Database {
         }
     }
 
-    private static HashMap<Integer, TimeFrame.State> getStates(int timeframe_id) {
-        HashMap<Integer, TimeFrame.State> states = new HashMap<>();
+    private static HashMap<Long, TimeFrame.State> getStates(long timeframe_id) {
+        HashMap<Long, TimeFrame.State> states = new HashMap<>();
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM states WHERE timeframe_id = ?;");
-            ps.setInt(1, timeframe_id);
+            ps.setLong(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()){
                 states.put(
-                    rs.getInt("task_id"),
+                    rs.getLong("task_id"),
                     TimeFrame.State.valueOf(rs.getString("state")));
             }
             return states;
@@ -327,17 +327,17 @@ public class Database {
         }
     }
 
-    private static HashMap<Integer, Task> getTasksList(int timeframe_id){
-        HashMap<Integer, Task> tasks = new HashMap<>();
+    private static HashMap<Long, Task> getTasksList(long timeframe_id){
+        HashMap<Long, Task> tasks = new HashMap<>();
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes_tasks NATURAL JOIN tasks WHERE timeframe_id = ?;");
-            ps.setInt(1, timeframe_id);
+            ps.setLong(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()){
                 tasks.put(
-                    rs.getInt("task_id"),
+                    rs.getLong("task_id"),
                     new Task(rs.getInt("task_id"), rs.getInt("duration"), rs.getInt("period")));
             }
             return tasks;

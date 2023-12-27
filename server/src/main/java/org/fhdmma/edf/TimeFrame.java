@@ -1,9 +1,7 @@
 package org.fhdmma.edf;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Queue;
@@ -26,22 +24,22 @@ public class TimeFrame implements Serializable
 
     final private static long serialVersionUID = 1l;
 
-    final private int id;
-    final private HashMap<Integer, Task> tasks;
-    final private HashMap<Integer, Integer> nextPeriod;
-    final private HashMap<Integer, State> states;
+    final private long id;
+    final private HashMap<Long, Task> tasks;
+    final private HashMap<Long, Integer> nextPeriod;
+    final private HashMap<Long, State> states;
     final private List<Action> changes;
-    final private int parent;
-    private int current;
+    final private long parent;
+    private long current;
     private int left;
 
     TimeFrame(List<Task> t) {
-        id = 0;
+        parent = -1;
+        id = generateId();
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
         tasks = new HashMap<>();
         changes = null;
-        parent = -1;
         for(var task: t) {
             tasks.put(task.getId(), task);
             nextPeriod.put(task.getId(), task.getPeriod());
@@ -51,7 +49,6 @@ public class TimeFrame implements Serializable
     }
 
     TimeFrame() {
-        id = 0;
         tasks = new HashMap<>();
         states = new HashMap<>();
         nextPeriod = new HashMap<>();
@@ -59,14 +56,15 @@ public class TimeFrame implements Serializable
         current = -1;
         left = 0;
         parent = -1;
+        id = generateId();
     }
 
-    TimeFrame(TimeFrame tf, List<Action> l, int identificator) {
+    TimeFrame(TimeFrame tf, List<Action> l) {
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
-        id = identificator;
         changes = l;
         parent = tf.getId();
+        id = generateId();
         left = tf.getTimeLeft()-((tf.getTimeLeft()>0)?1:0);
         current = tf.getCurrentTask();
         states.putAll(tf.getStates());
@@ -110,13 +108,13 @@ public class TimeFrame implements Serializable
         }
     }
 
-    public HashMap<Integer, Task> getTasks() { return tasks; }
-    public HashMap<Integer, Integer> getTimeFramesNeeded() { return nextPeriod; }
-    public HashMap<Integer, State> getStates() { return states; }
+    public HashMap<Long, Task> getTasks() { return tasks; }
+    public HashMap<Long, Integer> getTimeFramesNeeded() { return nextPeriod; }
+    public HashMap<Long, State> getStates() { return states; }
     public int getTimeLeft() { return left; }
-    public int getId() { return id; }
-    public int getCurrentTask() { return current; }
-    public int getParent() { return parent; }
+    public long getId() { return id; }
+    public long getCurrentTask() { return current; }
+    public long getParent() { return parent; }
     public List<Action> getChanges() { return changes; }
 
     public String toString() {
@@ -124,10 +122,15 @@ public class TimeFrame implements Serializable
             nextPeriod + ", left: " + left + " }";
     }
 
-    private int getEDId() {
-        int min_id = -1;
+    private long generateId() {
+        return System.currentTimeMillis()*1000000 + //Trim 3 leading numbers
+               parent%1000000 + Utility.rand.nextInt()%1000000;
+    }
+
+    private long getEDId() {
+        long min_id = -1;
         Task t;
-        int id;
+        long id;
         Integer period;
         Integer min = Integer.MAX_VALUE;
         var i = tasks.entrySet().iterator();
