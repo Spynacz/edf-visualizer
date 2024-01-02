@@ -27,6 +27,13 @@ public class Model {
 
     private final BooleanProperty okToAdd = new SimpleBooleanProperty(false);
 
+    private final BooleanProperty connected = new SimpleBooleanProperty(false);
+    private final BooleanProperty okToConnect = new SimpleBooleanProperty(false);
+
+    private final StringProperty serverIp = new SimpleStringProperty("");
+    private final StringProperty username = new SimpleStringProperty("");
+    private final StringProperty password = new SimpleStringProperty("");
+
     public String getTitle() {
         return title.get();
     }
@@ -129,5 +136,65 @@ public class Model {
 
     public BooleanProperty okToAddProperty() {
         return okToAdd;
+    }
+
+    public Boolean isConnected() {
+        return connected.get();
+    }
+
+    public void setConnected(Boolean value) {
+        connected.set(value);
+    }
+
+    public BooleanProperty connectedProperty() {
+        return connected;
+    }
+
+    public Boolean isOkToConnect() {
+        return okToConnect.get();
+    }
+
+    public void setOkToConnect(Boolean value) {
+        okToConnect.set(value);
+    }
+
+    public BooleanProperty okToConnectProperty() {
+        return okToConnect;
+    }
+
+    public String getServerIp() {
+        return serverIp.get();
+    }
+
+    public StringProperty serverIpProperty() {
+        return serverIp;
+    }
+
+    public void setServerIp(String ip) {
+        this.serverIp.set(ip);
+    }
+
+    public String getUsername() {
+        return username.get();
+    }
+
+    public StringProperty usernameProperty() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username.set(username);
+    }
+
+    public String getPassword() {
+        return password.get();
+    }
+
+    public StringProperty passwordProperty() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password.set(password);
     }
 }

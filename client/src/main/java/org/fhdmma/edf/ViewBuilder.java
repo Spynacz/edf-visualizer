@@ -14,11 +14,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -33,11 +33,14 @@ public class ViewBuilder implements Builder<Region> {
     private final Model model;
     private final Consumer<Runnable> taskAdder;
     private final Consumer<Runnable> taskDetailsDisplayer;
+    private final Consumer<Runnable> connector;
 
-    public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer) {
+    public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer,
+            Consumer<Runnable> connector) {
         this.model = model;
         this.taskAdder = taskAdder;
         this.taskDetailsDisplayer = taskDisplayer;
+        this.connector = connector;
     }
 
     @Override
@@ -61,11 +64,14 @@ public class ViewBuilder implements Builder<Region> {
 
     private Node createLeft() {
         VBox vbox = new VBox();
-
         vbox.getChildren().add(setClientTasks(taskDetailsDisplayer));
         VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
 
-        vbox.getChildren().add(setAddTaskButton());
+        if (model.isConnected()) {
+            vbox.getChildren().add(setAddTaskButton());
+        } else {
+            vbox.getChildren().add(setConnectButton());
+        }
 
         vbox.getStyleClass().add("leftbox");
         return vbox;
@@ -189,6 +195,52 @@ public class ViewBuilder implements Builder<Region> {
         return vbox;
     }
 
+    private Node setConnectButton() {
+        Button button = new Button("Connect");
+
+        button.setOnAction(evt -> {
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+
+            BorderPane borderPane = new BorderPane();
+            Node center = setConnectDialog(connector, dialog);
+            borderPane.setCenter(center);
+            BorderPane.setMargin(center, new Insets(50));
+
+            Scene dialogScene = new Scene(borderPane);
+            dialog.setScene(dialogScene);
+            dialog.setResizable(false);
+            dialog.show();
+        });
+
+        button.getStyleClass().add("add-button");
+
+        return button;
+    }
+
+    private Node setConnectDialog(Consumer<Runnable> connect, Stage stage) {
+        Node passwordText = boundPasswordField(model.passwordProperty(), "Password");
+        Node usernameText = boundTextField(model.usernameProperty(), "Username", passwordText);
+        Node serverIpText = boundTextField(model.serverIpProperty(), "Server IP", usernameText);
+
+        HBox serverIp = new HBox(6, new Label("Address:"), hboxSpacer(), serverIpText);
+        HBox username = new HBox(6, new Label("Username:"), hboxSpacer(), usernameText);
+        HBox password = new HBox(6, new Label("Password:"), hboxSpacer(), passwordText);
+
+        Button confirm = new Button("Connect");
+        confirm.disableProperty().bind(model.okToConnectProperty().not());
+        confirm.setOnAction(evt2 -> {
+            connect.accept(() -> stage.close());
+        });
+
+        confirm.setDefaultButton(true);
+
+        VBox vbox = new VBox(10, serverIp, username, password, confirm);
+        vbox.setAlignment(Pos.CENTER);
+
+        return vbox;
+    }
+
     private Region hboxSpacer() {
         Region region = new Region();
         HBox.setHgrow(region, Priority.ALWAYS);
@@ -261,6 +313,27 @@ public class ViewBuilder implements Builder<Region> {
         });
 
         return textField;
+    }
+
+    private Node boundPasswordField(StringProperty boundProperty, String prompt) {
+        PasswordField passwordField = new PasswordField();
+        passwordField.textProperty().bindBidirectional(boundProperty);
+        passwordField.setPromptText(prompt);
+
+        return passwordField;
+    }
+
+    private Node boundPasswordField(StringProperty boundProperty, String prompt, Node nextField) {
+        PasswordField passwordField = new PasswordField();
+        passwordField.textProperty().bindBidirectional(boundProperty);
+        passwordField.setPromptText(prompt);
+        passwordField.setOnKeyPressed(evt -> {
+            if (evt.getCode().equals(KeyCode.ENTER)) {
+                nextField.requestFocus();
+            }
+        });
+
+        return passwordField;
     }
 
     private Node boundLabel(StringProperty boundProperty) {

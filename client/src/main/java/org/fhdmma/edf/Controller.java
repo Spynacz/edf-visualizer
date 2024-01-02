@@ -12,10 +12,23 @@ public class Controller {
     public Controller() {
         Model model = new Model();
         this.interactor = new Interactor(model);
-        this.viewBuilder = new ViewBuilder(model, this::addTask, this::displayTaskDetails);
+        this.viewBuilder = new ViewBuilder(model, this::addTask, this::displayTaskDetails, this::connectToServer);
 
         // temporary
         interactor.updateTaskListModel();
+    }
+
+    private void connectToServer(Runnable postConnectGUIUpdate) {
+        Task<Void> connectTask = new Task<>() {
+            @Override
+            protected Void call() {
+                interactor.connectToServer();
+                return null;
+            }
+        };
+
+        Thread connectTaskThread = new Thread(connectTask);
+        connectTaskThread.start();
     }
 
     private void displayTaskDetails(Runnable postFetchGUIUpdate) {

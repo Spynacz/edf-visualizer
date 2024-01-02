@@ -1,22 +1,31 @@
 package org.fhdmma.edf;
 
+import java.io.IOException;
+
 import javafx.beans.binding.Bindings;
 
 public class Interactor {
 
-    private Model model;
+    private final Model model;
     private EDFTask selectedTask;
+    private final Client client = new Client();
 
     public Interactor(Model model) {
         this.model = model;
-        model.okToAddProperty().bind(Bindings.createBooleanBinding(this::isDataValid, model.titleProperty(),
+        model.okToAddProperty().bind(Bindings.createBooleanBinding(this::isTaskValid, model.titleProperty(),
                 model.durationProperty(), model.periodProperty()));
+        model.okToConnectProperty().bind(Bindings.createBooleanBinding(this::isDataValid, model.serverIpProperty(),
+                model.usernameProperty(), model.passwordProperty()));
     }
 
-    private boolean isDataValid() {
+    private boolean isTaskValid() {
         return model.getTitle() != "" && model.getPeriod() > 0 && model.getDuration() > 0;
     }
 
+    private Boolean isDataValid() {
+        return model.getServerIp() != "" && model.getUsername() != "" && model.getPassword() != "";
+    }
+    
     public void addTask() {
         EDFTask newTask = new EDFTask(model.getTitle(), model.getPeriod(), model.getDuration());
 
@@ -37,4 +46,14 @@ public class Interactor {
         model.setSelectedPeriod(String.valueOf(selectedTask.getPeriod()));
         model.setSelectedDuration(String.valueOf(selectedTask.getDuration()));
     }
+
+    public void connectToServer() {
+        try {
+            client.connect(model.getServerIp(), model.getUsername(), model.getPassword());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 }
