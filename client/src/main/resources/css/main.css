@@ -59,6 +59,11 @@
     -fx-border-width: 5;
 }
 
+.current-task {
+    -fx-font-size: 32;
+    -fx-alignment: center;
+}
+
 .main-label {
     -fx-font-size: 32px;
     -fx-text-alignment: center;

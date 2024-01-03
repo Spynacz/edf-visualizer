@@ -29,10 +29,14 @@ public class Model {
 
     private final BooleanProperty connected = new SimpleBooleanProperty(false);
     private final BooleanProperty okToConnect = new SimpleBooleanProperty(false);
+    private final BooleanProperty connectionError = new SimpleBooleanProperty(false);
+    private final StringProperty connectionErrorMessage = new SimpleStringProperty("");
 
     private final StringProperty serverIp = new SimpleStringProperty("");
     private final StringProperty username = new SimpleStringProperty("");
     private final StringProperty password = new SimpleStringProperty("");
+
+    private final StringProperty currentTask = new SimpleStringProperty("");
 
     public String getTitle() {
         return title.get();
@@ -196,5 +200,41 @@ public class Model {
 
     public void setPassword(String password) {
         this.password.set(password);
+    }
+
+    public String getCurrentTask() {
+        return currentTask.get();
+    }
+
+    public StringProperty currentTaskProperty() {
+        return currentTask;
+    }
+
+    public void setCurrentTask(String task) {
+        this.currentTask.set(task);
+    }
+
+    public Boolean isConnectionError() {
+        return connectionError.get();
+    }
+
+    public void setConnectionError(Boolean value) {
+        connectionError.set(value);
+    }
+
+    public BooleanProperty connectionErrorProperty() {
+        return connectionError;
+    }
+
+    public String getConnetionErrorMessage() {
+        return connectionErrorMessage.get();
+    }
+
+    public void setConnectionErrorMessage(String message) {
+        this.connectionErrorMessage.set(message);
+    }
+
+    public StringProperty connectionErrorMessageProperty() {
+        return connectionErrorMessage;
     }
 }

@@ -1,6 +1,8 @@
 package org.fhdmma.edf;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 
 import javafx.beans.binding.Bindings;
 
@@ -9,6 +11,7 @@ public class Interactor {
     private final Model model;
     private EDFTask selectedTask;
     private final Client client = new Client();
+    private String connectionErrorMessage;
 
     public Interactor(Model model) {
         this.model = model;
@@ -25,7 +28,7 @@ public class Interactor {
     private Boolean isDataValid() {
         return model.getServerIp() != "" && model.getUsername() != "" && model.getPassword() != "";
     }
-    
+
     public void addTask() {
         EDFTask newTask = new EDFTask(model.getTitle(), model.getPeriod(), model.getDuration());
 
@@ -49,11 +52,21 @@ public class Interactor {
 
     public void connectToServer() {
         try {
+            model.setConnectionError(false);
             client.connect(model.getServerIp(), model.getUsername(), model.getPassword());
+        } catch (ConnectException e) {
+            model.setConnectionError(true);
+            connectionErrorMessage = e.getMessage();
+        } catch (UnknownHostException e) {
+            model.setConnectionError(true);
+            connectionErrorMessage = "Unknown host: " + e.getMessage();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            model.setConnectionError(true);
+            connectionErrorMessage = "Error: " + e.getMessage();
         }
     }
 
+    public void updateConnectionErrorMessageModel() {
+        model.setConnectionErrorMessage(connectionErrorMessage);
+    }
 }

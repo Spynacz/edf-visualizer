@@ -18,7 +18,7 @@ public class Controller {
         interactor.updateTaskListModel();
     }
 
-    private void connectToServer(Runnable postConnectGUIUpdate) {
+    private void connectToServer(Runnable connectSuccessGUIUpdate) {
         Task<Void> connectTask = new Task<>() {
             @Override
             protected Void call() {
@@ -26,7 +26,10 @@ public class Controller {
                 return null;
             }
         };
-
+        connectTask.setOnSucceeded(evt -> {
+            interactor.updateConnectionErrorMessageModel();
+            connectSuccessGUIUpdate.run();
+        });
         Thread connectTaskThread = new Thread(connectTask);
         connectTaskThread.start();
     }
@@ -67,4 +70,3 @@ public class Controller {
         return viewBuilder.build();
     }
 }
-

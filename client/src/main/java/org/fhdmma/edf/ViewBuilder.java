@@ -56,8 +56,9 @@ public class ViewBuilder implements Builder<Region> {
     }
 
     private Node createCenter() {
-        Label tempLabel = new Label("TODO: centre panel");
-        VBox vbox = new VBox(tempLabel);
+        HBox currentTaskHbox = new HBox(5, new Label("Current task:"), boundLabel(model.currentTaskProperty()));
+        currentTaskHbox.getStyleClass().add("current-task");
+        VBox vbox = new VBox(10, currentTaskHbox);
         vbox.getStyleClass().add("centerbox");
         return vbox;
     }
@@ -183,7 +184,7 @@ public class ViewBuilder implements Builder<Region> {
 
         Button confirm = new Button("Confirm");
         confirm.disableProperty().bind(model.okToAddProperty().not());
-        confirm.setOnAction(evt2 -> {
+        confirm.setOnAction(evt -> {
             addTask.accept(() -> stage.close());
         });
 
@@ -199,6 +200,9 @@ public class ViewBuilder implements Builder<Region> {
         Button button = new Button("Connect");
 
         button.setOnAction(evt -> {
+            model.setConnectionError(false);
+            model.setConnectionErrorMessage("");
+
             final Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
 
@@ -229,13 +233,17 @@ public class ViewBuilder implements Builder<Region> {
 
         Button confirm = new Button("Connect");
         confirm.disableProperty().bind(model.okToConnectProperty().not());
-        confirm.setOnAction(evt2 -> {
-            connect.accept(() -> stage.close());
+        confirm.setOnAction(evt -> {
+            connect.accept(() -> {
+                if (!model.isConnectionError())
+                    stage.close();
+            });
         });
 
         confirm.setDefaultButton(true);
 
-        VBox vbox = new VBox(10, serverIp, username, password, confirm);
+        VBox vbox = new VBox(10, serverIp, username, password, confirm,
+                boundLabel(model.connectionErrorMessageProperty()));
         vbox.setAlignment(Pos.CENTER);
 
         return vbox;
