@@ -6,15 +6,21 @@ import java.util.function.Consumer;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -55,14 +61,6 @@ public class ViewBuilder implements Builder<Region> {
         return mainPane;
     }
 
-    private Node createCenter() {
-        HBox currentTaskHbox = new HBox(5, new Label("Current task:"), boundLabel(model.currentTaskProperty()));
-        currentTaskHbox.getStyleClass().add("current-task");
-        VBox vbox = new VBox(10, currentTaskHbox);
-        vbox.getStyleClass().add("centerbox");
-        return vbox;
-    }
-
     private Node createLeft() {
         VBox vbox = new VBox();
         vbox.getChildren().add(setClientTasks(taskDetailsDisplayer));
@@ -86,6 +84,60 @@ public class ViewBuilder implements Builder<Region> {
 
         vbox.getStyleClass().add("rightbox");
         return vbox;
+    }
+
+    private Node createCenter() {
+        VBox vbox = new VBox(10, setCurrentTask(), setTasksChart());
+        VBox.setVgrow(vbox.getChildren().get(1), Priority.SOMETIMES);
+        vbox.getStyleClass().add("centerbox");
+        return vbox;
+    }
+
+    private Node setTasksChart() {
+        NumberAxis xAxis = new NumberAxis();
+        xAxis.setAutoRanging(false);
+        xAxis.setMinorTickCount(5);
+        xAxis.setLowerBound(0);
+        xAxis.setUpperBound(10);
+        xAxis.setTickUnit(1);
+
+        CategoryAxis yAxis = new CategoryAxis();
+        yAxis.setAutoRanging(false);
+        yAxis.setCategories(model.getTaskListNames());
+
+        for (String t : model.getTaskListNames()) {
+            System.out.println(t);
+        }
+
+        TimelineChart chart = new TimelineChart(xAxis, yAxis);
+        chart.setTitle("Task execution history");
+        chart.setLegendVisible(false);
+        // TODO: Put chart on ScrollPane
+        // chart.setPrefHeight(9999999);
+
+        ObservableList<XYChart.Series<Number, String>> chartData = FXCollections.observableArrayList();
+
+        for (String t : model.getTaskListNames()) {
+            ObservableList<XYChart.Data<Number, String>> seriesData = FXCollections.observableArrayList();
+            
+            // TODO: Fill chart with timeframes
+
+            chartData.add(new XYChart.Series<>(seriesData));
+        }
+
+        chart.setData(chartData);
+        chart.setPrefHeight(9999);
+        chart.setMinHeight(9999);
+
+        ScrollPane scrollpane = new ScrollPane(chart);
+        scrollpane.setFitToWidth(true);
+        return scrollpane;
+    }
+
+    private Node setCurrentTask() {
+        HBox hbox = new HBox(5, new Label("Current task:"), boundLabel(model.currentTaskProperty()));
+        hbox.getStyleClass().add("current-task");
+        return hbox;
     }
 
     private Node setClientTasks(Consumer<Runnable> displayTaskDetails) {

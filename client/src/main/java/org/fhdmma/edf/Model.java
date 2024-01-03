@@ -19,7 +19,8 @@ public class Model {
     private final IntegerProperty duration = new SimpleIntegerProperty();
     private final IntegerProperty period = new SimpleIntegerProperty();
     private final ObservableList<EDFTask> taskList = FXCollections.observableArrayList();
-    //TODO: consider splitting into two models
+    private final ObservableList<String> taskListNames = FXCollections.observableArrayList();
+    // TODO: consider splitting into two models
     private final ObjectProperty<EDFTask> selectedTask = new SimpleObjectProperty<EDFTask>();
     private final StringProperty selectedTitle = new SimpleStringProperty("");
     private final StringProperty selectedDuration = new SimpleStringProperty("");
@@ -76,6 +77,16 @@ public class Model {
 
     public ObservableList<EDFTask> getTaskList() {
         return taskList;
+    }
+
+    public void setTaskListNames(List<EDFTask> tasks) {
+        for (EDFTask task : tasks) {
+            this.taskListNames.add(task.getName());
+        }
+    }
+
+    public ObservableList<String> getTaskListNames() {
+        return taskListNames;
     }
 
     public void setTaskList(List<EDFTask> tasks) {

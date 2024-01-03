@@ -42,6 +42,9 @@ public class Interactor {
 
     public void updateTaskListModel() {
         model.setTaskList(Main.tasks);
+        for (EDFTask task : Main.tasks) {
+            model.getTaskListNames().add(task.getName());
+        }
     }
 
     public void updateSelectedModel() {
