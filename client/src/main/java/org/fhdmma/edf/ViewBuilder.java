@@ -58,7 +58,6 @@ public class ViewBuilder implements Builder<Region> {
                 .add(Objects.requireNonNull(this.getClass().getResource("/css/main.css")).toExternalForm());
         mainPane.setTop(headingLabel("EDF Visualizer"));
         mainPane.setLeft(createLeft());
-        mainPane.setRight(createRight());
         mainPane.setCenter(createCenter());
         return mainPane;
     }
@@ -75,19 +74,9 @@ public class ViewBuilder implements Builder<Region> {
         return vbox;
     }
 
-    private Node createRight() {
-        VBox vbox = new VBox(5);
-        vbox.setMinWidth(200);
-
-        vbox.getChildren().add(setTaskDetails());
-
-        vbox.getStyleClass().add("rightbox");
-        return vbox;
-    }
-
     private Node createCenter() {
         VBox vbox = new VBox(10, setCurrentTask(), setTasksChart());
-        VBox.setVgrow(vbox.getChildren().get(1), Priority.SOMETIMES);
+        VBox.setVgrow(vbox.getChildren().get(1), Priority.ALWAYS);
         vbox.getStyleClass().add("centerbox");
         return vbox;
     }
@@ -111,26 +100,19 @@ public class ViewBuilder implements Builder<Region> {
         TimelineChart chart = new TimelineChart(xAxis, yAxis);
         chart.setTitle("Task execution history");
         chart.setLegendVisible(false);
-        // TODO: Put chart on ScrollPane
-        // chart.setPrefHeight(9999999);
 
         ObservableList<XYChart.Series<Number, String>> chartData = FXCollections.observableArrayList();
 
         for (String t : model.getTaskListNames()) {
             ObservableList<XYChart.Data<Number, String>> seriesData = FXCollections.observableArrayList();
-            
+
             // TODO: Fill chart with timeframes
 
             chartData.add(new XYChart.Series<>(seriesData));
         }
 
         chart.setData(chartData);
-        chart.setPrefHeight(9999);
-        chart.setMinHeight(9999);
-
-        ScrollPane scrollpane = new ScrollPane(chart);
-        scrollpane.setFitToWidth(true);
-        return scrollpane;
+        return chart;
     }
 
     private Node setCurrentTask() {
@@ -147,15 +129,15 @@ public class ViewBuilder implements Builder<Region> {
             return new ListCell<EDFTask>() {
                 private HBox content;
                 private Text name;
-                // private Text period;
-                // private Text duration;
+                private Text period;
+                private Text duration;
 
                 {
                     name = new Text();
-                    // period = new Text();
-                    // duration = new Text();
-                    // VBox vBox = new VBox(period, duration);
-                    content = new HBox(10, name);
+                    period = new Text();
+                    duration = new Text();
+                    VBox vbox = new VBox(period, duration);
+                    content = new HBox(10, name, vbox);
                 }
 
                 @Override
@@ -163,8 +145,8 @@ public class ViewBuilder implements Builder<Region> {
                     super.updateItem(item, empty);
                     if (item != null && !empty) {
                         name.setText(item.getName());
-                        // period.setText("Period: " + item.getPeriod());
-                        // duration.setText("Duration: " + item.getDuration());
+                        period.setText("Period: " + item.getPeriod());
+                        duration.setText("Duration: " + item.getDuration());
                         setGraphic(content);
                     } else {
                         setGraphic(null);
@@ -177,28 +159,13 @@ public class ViewBuilder implements Builder<Region> {
             EDFTask t = listView.getSelectionModel().getSelectedItem();
             if (t != null) {
                 model.setSelectedTask(t);
-                displayTaskDetails.accept(() -> {
-                    // TODO: side panel hide/unhide
-                });
+                // TODO: Add option to remove a task
             }
         });
 
         listView.getStyleClass().add("task-list");
 
         return listView;
-    }
-
-    private Node setTaskDetails() {
-        HBox title = new HBox(6, boundLabel(model.selectedTitleProperty()));
-        // TODO: hide labels when no task selected (unless the sidebar will be hidden)
-        HBox duration = new HBox(6, new Label("Duration:"), boundLabel(model.selectedDurationProperty()));
-        HBox period = new HBox(6, new Label("Period:"), boundLabel(model.selectedDurationProperty()));
-
-        title.getStyleClass().add("details-title");
-        duration.getStyleClass().add("details");
-        period.getStyleClass().add("details");
-
-        return new VBox(10, title, duration, period);
     }
 
     private Node setAddTaskButton() {
