@@ -32,6 +32,7 @@ public class Model {
     private final BooleanProperty okToConnect = new SimpleBooleanProperty(false);
     private final BooleanProperty connectionError = new SimpleBooleanProperty(false);
     private final StringProperty connectionErrorMessage = new SimpleStringProperty("");
+    private final StringProperty connectButtonLabel = new SimpleStringProperty("Connect");
 
     private final StringProperty serverIp = new SimpleStringProperty("");
     private final StringProperty username = new SimpleStringProperty("");
@@ -247,5 +248,17 @@ public class Model {
 
     public StringProperty connectionErrorMessageProperty() {
         return connectionErrorMessage;
+    }
+
+    public String getConnectButtonLabel() {
+        return connectButtonLabel.get();
+    }
+
+    public void setConnectButtonLabel(String label) {
+        this.connectButtonLabel.set(label);
+    }
+
+    public StringProperty connectButtonLabelProperty() {
+        return connectButtonLabel;
     }
 }

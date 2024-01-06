@@ -17,7 +17,7 @@ public class Client {
     private static DataOutputStream out;
     private static ObjectInputStream in;
 
-    public void connect(String address, String username, String password) throws IOException, UnknownHostException {
+    public static void connect(String address, String username, String password) throws IOException, UnknownHostException {
         socket = new Socket(address, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());

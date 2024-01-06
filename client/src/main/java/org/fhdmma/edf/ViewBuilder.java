@@ -40,13 +40,15 @@ public class ViewBuilder implements Builder<Region> {
     private final Consumer<Runnable> taskAdder;
     private final Consumer<Runnable> taskDetailsDisplayer;
     private final Consumer<Runnable> connector;
+    private final Runnable disconnector;
 
     public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer,
-            Consumer<Runnable> connector) {
+            Consumer<Runnable> connector, Runnable disconnector) {
         this.model = model;
         this.taskAdder = taskAdder;
         this.taskDetailsDisplayer = taskDisplayer;
         this.connector = connector;
+        this.disconnector = disconnector;
     }
 
     @Override
@@ -66,11 +68,8 @@ public class ViewBuilder implements Builder<Region> {
         vbox.getChildren().add(setClientTasks(taskDetailsDisplayer));
         VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
 
-        if (model.isConnected()) {
-            vbox.getChildren().add(setAddTaskButton());
-        } else {
-            vbox.getChildren().add(setConnectButton());
-        }
+        vbox.getChildren().add(setAddTaskButton());
+        vbox.getChildren().add(setConnectButton(disconnector));
 
         vbox.getStyleClass().add("leftbox");
         return vbox;
@@ -204,6 +203,7 @@ public class ViewBuilder implements Builder<Region> {
 
     private Node setAddTaskButton() {
         Button button = new Button("Add task");
+        button.disableProperty().bind(model.connectedProperty().not());
 
         button.setOnAction(evt -> {
             final Stage dialog = new Stage();
@@ -248,25 +248,30 @@ public class ViewBuilder implements Builder<Region> {
         return vbox;
     }
 
-    private Node setConnectButton() {
-        Button button = new Button("Connect");
+    private Node setConnectButton(Runnable disconnect) {
+        Button button = new Button();
+        button.textProperty().bindBidirectional(model.connectButtonLabelProperty());
 
         button.setOnAction(evt -> {
-            model.setConnectionError(false);
-            model.setConnectionErrorMessage("");
+            if (model.isConnected()) {
+                disconnect.run();
+            } else {
+                model.setConnectionError(false);
+                model.setConnectionErrorMessage("");
 
-            final Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
+                final Stage dialog = new Stage();
+                dialog.initModality(Modality.APPLICATION_MODAL);
 
-            BorderPane borderPane = new BorderPane();
-            Node center = setConnectDialog(connector, dialog);
-            borderPane.setCenter(center);
-            BorderPane.setMargin(center, new Insets(50));
+                BorderPane borderPane = new BorderPane();
+                Node center = setConnectDialog(connector, dialog);
+                borderPane.setCenter(center);
+                BorderPane.setMargin(center, new Insets(50));
 
-            Scene dialogScene = new Scene(borderPane);
-            dialog.setScene(dialogScene);
-            dialog.setResizable(false);
-            dialog.show();
+                Scene dialogScene = new Scene(borderPane);
+                dialog.setScene(dialogScene);
+                dialog.setResizable(false);
+                dialog.show();
+            }
         });
 
         button.getStyleClass().add("add-button");

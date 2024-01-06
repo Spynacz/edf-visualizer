@@ -10,8 +10,8 @@ public class Interactor {
 
     private final Model model;
     private EDFTask selectedTask;
-    private final Client client = new Client();
     private String connectionErrorMessage;
+    private boolean connectionError = false;
 
     public Interactor(Model model) {
         this.model = model;
@@ -53,23 +53,41 @@ public class Interactor {
         model.setSelectedDuration(String.valueOf(selectedTask.getDuration()));
     }
 
-    public void connectToServer() {
+    public void connectToServer() throws IOException {
+        connectionError = false;
+        connectionErrorMessage = "";
         try {
-            model.setConnectionError(false);
-            client.connect(model.getServerIp(), model.getUsername(), model.getPassword());
+            Client.connect(model.getServerIp(), model.getUsername(), model.getPassword());
+            System.out.println(connectionError + " " + connectionErrorMessage);
         } catch (ConnectException e) {
-            model.setConnectionError(true);
+            connectionError = true;
             connectionErrorMessage = e.getMessage();
+            throw e;
         } catch (UnknownHostException e) {
-            model.setConnectionError(true);
+            connectionError = true;
             connectionErrorMessage = "Unknown host: " + e.getMessage();
+            throw e;
         } catch (IOException e) {
-            model.setConnectionError(true);
+            connectionError = true;
             connectionErrorMessage = "Error: " + e.getMessage();
+            throw e;
         }
     }
 
-    public void updateConnectionErrorMessageModel() {
+    public void updateConnectionErrorModel() {
+        model.setConnectionError(connectionError);
         model.setConnectionErrorMessage(connectionErrorMessage);
+    }
+
+    public void disconnectFromServer() throws IOException {
+        Client.disconnect();
+    }
+
+    public void updateConnectButtonLabel(String label) {
+        model.setConnectButtonLabel(label);
+    }
+
+    public void updateConnectedModel(boolean value) {
+        model.setConnected(value);
     }
 }
