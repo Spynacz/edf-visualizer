@@ -14,7 +14,7 @@ public class Controller {
     public Controller() {
         Model model = new Model();
         this.interactor = new Interactor(model);
-        this.viewBuilder = new ViewBuilder(model, this::addTask, this::displayTaskDetails, this::connectToServer, this::disconnectFromServer);
+        this.viewBuilder = new ViewBuilder(model, this::addTask, this::removeTask, this::connectToServer, this::disconnectFromServer);
 
         // temporary
         interactor.updateTaskListModel();
@@ -57,22 +57,6 @@ public class Controller {
         disconnectTaskThread.start();
     }
 
-    private void displayTaskDetails(Runnable postFetchGUIUpdate) {
-        Task<Void> getTaskTask = new Task<>() {
-            @Override
-            protected Void call() {
-                interactor.getSelectedTaskDetails();
-                return null;
-            }
-        };
-        getTaskTask.setOnSucceeded(evt -> {
-            interactor.updateSelectedModel();
-            postFetchGUIUpdate.run();
-        });
-        Thread displayTaskThread = new Thread(getTaskTask);
-        displayTaskThread.start();
-    }
-
     private void addTask(Runnable postAddGUIUpdate) {
         Task<Void> addTaskTask = new Task<>() {
             @Override
@@ -87,6 +71,22 @@ public class Controller {
         });
         Thread addTaskThread = new Thread(addTaskTask);
         addTaskThread.start();
+    }
+
+    private void removeTask(Runnable postRemoveGUIUpdate) {
+        Task<Void> removeTaskTask = new Task<>() {
+            @Override
+            protected Void call() {
+                interactor.removeTask();
+                return null;
+            }
+        };
+        removeTaskTask.setOnSucceeded(evt -> {
+            interactor.updateTaskListModel();
+            postRemoveGUIUpdate.run();
+        });
+        Thread removeTaskThread = new Thread(removeTaskTask);
+        removeTaskThread.start();
     }
 
     public Region getView() {

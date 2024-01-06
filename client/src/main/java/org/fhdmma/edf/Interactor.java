@@ -3,6 +3,8 @@ package org.fhdmma.edf;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.beans.binding.Bindings;
 
@@ -36,15 +38,21 @@ public class Interactor {
         Main.addTask(newTask);
     }
 
+    public void removeTask() {
+        Main.removeTask(model.getSelectedTask());
+    }
+
     public void getSelectedTaskDetails() {
         selectedTask = model.getSelectedTask();
     }
 
     public void updateTaskListModel() {
         model.setTaskList(Main.tasks);
+        List<String> names = new ArrayList<>();
         for (EDFTask task : Main.tasks) {
-            model.getTaskListNames().add(task.getName());
+            names.add(task.getName());
         }
+        model.setTaskListNames(names);;
     }
 
     public void updateSelectedModel() {

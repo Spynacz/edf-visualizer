@@ -25,6 +25,7 @@ public class Model {
     private final StringProperty selectedTitle = new SimpleStringProperty("");
     private final StringProperty selectedDuration = new SimpleStringProperty("");
     private final StringProperty selectedPeriod = new SimpleStringProperty("");
+    private final BooleanProperty taskSelected = new SimpleBooleanProperty(false);
 
     private final BooleanProperty okToAdd = new SimpleBooleanProperty(false);
 
@@ -80,18 +81,16 @@ public class Model {
         return taskList;
     }
 
-    public void setTaskListNames(List<EDFTask> tasks) {
-        for (EDFTask task : tasks) {
-            this.taskListNames.add(task.getName());
-        }
+    public void setTaskList(List<EDFTask> tasks) {
+        this.taskList.setAll(tasks);
     }
 
     public ObservableList<String> getTaskListNames() {
         return taskListNames;
     }
-
-    public void setTaskList(List<EDFTask> tasks) {
-        this.taskList.setAll(tasks);
+    
+    public void setTaskListNames(List<String> tasks) {
+        this.taskListNames.setAll(tasks);
     }
 
     public EDFTask getSelectedTask() {
@@ -140,6 +139,18 @@ public class Model {
 
     public void setSelectedPeriod(String period) {
         this.selectedPeriod.set(period);
+    }
+
+    public Boolean isTaskSelected() {
+        return taskSelected.get();
+    }
+
+    public void setTaskSelected(Boolean value) {
+        taskSelected.set(value);
+    }
+
+    public BooleanProperty taskSelectedProperty() {
+        return taskSelected;
     }
 
     public Boolean isOkToAdd() {

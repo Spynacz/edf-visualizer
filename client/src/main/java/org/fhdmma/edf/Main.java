@@ -49,4 +49,8 @@ public class Main extends Application {
         tasks.add(newTask);
     }
 
+    public static void removeTask(EDFTask selectedTask) {
+        tasks.remove(selectedTask);
+    }
+
 }

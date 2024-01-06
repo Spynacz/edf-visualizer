@@ -20,7 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -38,17 +38,17 @@ public class ViewBuilder implements Builder<Region> {
 
     private final Model model;
     private final Consumer<Runnable> taskAdder;
-    private final Consumer<Runnable> taskDetailsDisplayer;
+    private final Consumer<Runnable> taskRemover;
     private final Consumer<Runnable> connector;
     private final Runnable disconnector;
 
-    public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskDisplayer,
+    public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskRemover,
             Consumer<Runnable> connector, Runnable disconnector) {
         this.model = model;
         this.taskAdder = taskAdder;
-        this.taskDetailsDisplayer = taskDisplayer;
         this.connector = connector;
         this.disconnector = disconnector;
+        this.taskRemover = taskRemover;
     }
 
     @Override
@@ -64,10 +64,11 @@ public class ViewBuilder implements Builder<Region> {
 
     private Node createLeft() {
         VBox vbox = new VBox();
-        vbox.getChildren().add(setClientTasks(taskDetailsDisplayer));
+        vbox.getChildren().add(setClientTasks());
         VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
 
         vbox.getChildren().add(setAddTaskButton());
+        vbox.getChildren().add(setRemoveTaskButton(taskRemover));
         vbox.getChildren().add(setConnectButton(disconnector));
 
         vbox.getStyleClass().add("leftbox");
@@ -121,7 +122,7 @@ public class ViewBuilder implements Builder<Region> {
         return hbox;
     }
 
-    private Node setClientTasks(Consumer<Runnable> displayTaskDetails) {
+    private Node setClientTasks() {
         ListView<EDFTask> listView = new ListView<>();
         listView.setItems(model.getTaskList());
 
@@ -159,7 +160,7 @@ public class ViewBuilder implements Builder<Region> {
             EDFTask t = listView.getSelectionModel().getSelectedItem();
             if (t != null) {
                 model.setSelectedTask(t);
-                // TODO: Add option to remove a task
+                model.setTaskSelected(true);
             }
         });
 
@@ -188,6 +189,19 @@ public class ViewBuilder implements Builder<Region> {
         });
 
         button.getStyleClass().add("add-button");
+
+        return button;
+    }
+
+    private Node setRemoveTaskButton(Consumer<Runnable> remove) {
+        Button button = new Button("Remove task");
+        button.disableProperty().bind(model.taskSelectedProperty().not());
+
+        button.setOnAction(evt -> {
+            remove.accept(() -> model.setTaskSelected(false));
+        });
+
+        button.getStyleClass().add("remove-button");
 
         return button;
     }
