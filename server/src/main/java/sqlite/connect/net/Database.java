@@ -61,10 +61,12 @@ class Database {
                     "period INTEGER);");
             statement.executeUpdate("CREATE TABLE timeframes" +
                     "(id INTEGER PRIMARY KEY, "+
+                    "user_id INTEGER NULL, "+
                     "parent_id INTEGER NULL, "+
                     "active_task INTEGER, "+
                     "time_left INTEGER, "+
-                    "FOREIGN KEY(parent_id) REFERENCES timeframes(id));");
+                    "FOREIGN KEY(parent_id) REFERENCES timeframes(id),"+
+                    "FOREIGN KEY(user_id) REFERENCES users(id));");
             statement.executeUpdate("CREATE TABLE timeframes_tasks" +
                     "(timeframe_id INTEGER," +
                     "task_id INTEGER," +
@@ -181,11 +183,12 @@ class Database {
 
     public static void insertTimeFrame(TimeFrame tf){
         try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?)");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?, ?)");
             ps.setLong(1, tf.getId());
-            ps.setLong(2, tf.getParent());
-            ps.setLong(3, tf.getCurrentTask());
-            ps.setInt(4, tf.getTimeLeft());
+            ps.setLong(2, tf.getUser());
+            ps.setLong(3, tf.getParent());
+            ps.setLong(4, tf.getCurrentTask());
+            ps.setInt(5, tf.getTimeLeft());
             ps.executeUpdate();
         }
         catch (SQLException e) {
@@ -303,10 +306,12 @@ class Database {
 
     public static void addTimeFrame(TimeFrame tf) {
         try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?, ?)");
             ps.setLong(1, tf.getId());
-            ps.setLong(2, tf.getCurrentTask());
-            ps.setInt(3, tf.getTimeLeft());
+            ps.setLong(2, tf.getUser());
+            ps.setLong(3, tf.getParent());
+            ps.setLong(4, tf.getCurrentTask());
+            ps.setInt(5, tf.getTimeLeft());
             ps.executeUpdate();
         }
         catch (SQLException e) {

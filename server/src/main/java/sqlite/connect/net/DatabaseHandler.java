@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.InvalidAttributeValueException;
-
 import org.fhdmma.edf.Task;
 import org.fhdmma.edf.TimeFrame;
 import org.fhdmma.edf.User;
