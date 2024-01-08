@@ -25,7 +25,7 @@ public class Main {
                             e.printStackTrace();
                         }
                         break;
-                    case 'a':
+                    default:
                         Client.getOutput().writeUTF(line);
                         break;
                 }

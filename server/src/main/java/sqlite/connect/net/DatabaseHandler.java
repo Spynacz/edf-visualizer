@@ -26,19 +26,12 @@ public class DatabaseHandler {
     }
 
     public static User userLogin(String username, String password) throws SQLException {
-        return Database.retrieveUser(username, password);
-    }
-
-    public static Boolean userRegister(String username, String password1, String password2) throws InvalidAttributeValueException {
-        if (!password2.equals(password1)) {
-            throw new InvalidAttributeValueException("Passwords are not the same!");
+        User u = Database.retrieveUser(username, password);
+        if(u == null) {
+            Database.insertUser(username, password);
+            u = Database.retrieveUser(username, password);
         }
-
-        if (Database.isUsernameUnique(username)){
-            throw new InvalidAttributeValueException("Username is taken.");
-        }
-
-        return Database.insertUser(username, password1);
+        return u;
     }
 
     private static void addChangeList(long timeframe_id, List<TimeFrame.Action> queue) {
@@ -90,9 +83,9 @@ public class DatabaseHandler {
         return Database.retrieveLatestTask();
     }
 
-    public static TimeFrame getLatestTimeFrame() throws SQLException {
-        return Database.retrieveLatestTimeFrame();
-    }
+    // public static TimeFrame getLatestTimeFrame() throws SQLException {
+    //     return Database.retrieveLatestTimeFrame();
+    // }
 
     public static void printTasks() throws SQLException {
         Database.printTasks();

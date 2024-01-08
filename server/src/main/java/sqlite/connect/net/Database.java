@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.fhdmma.edf.*;
 
+//TODO: add user to timeframes
 class Database {
     static Connection connection;
     static Statement statement;
@@ -299,6 +300,7 @@ class Database {
             addTask(timeframe_id, task.getDuration(), task.getPeriod());
         }
     }
+
     public static void addTimeFrame(TimeFrame tf) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
@@ -354,30 +356,30 @@ class Database {
         return null;
     }
 
-    public static TimeFrame retrieveLatestTimeFrame() throws SQLException {
-        try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
-            ResultSet rs = ps.executeQuery();
+    // public static TimeFrame retrieveLatestTimeFrame() throws SQLException {
+    //     try {
+    //         PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
+    //         ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                long id = rs.getInt("id");
-                return new TimeFrame(
-                    id,
-                    retrieveTasksList(id),
-                    retrievePeriod(id),
-                    retrieveStates(id),
-                    retrieveChanges(id),
-                    rs.getInt("parent_id"),
-                    rs.getInt("active_task"),
-                    rs.getInt("time_left")
-                );
-            }
-            throw new SQLException("Getting timeframe failed, no rows obtained.");
-        }
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    //         if (rs.next()) {
+    //             long id = rs.getInt("id");
+    //             return new TimeFrame(
+    //                 id,
+    //                 retrieveTasksList(id),
+    //                 retrievePeriod(id),
+    //                 retrieveStates(id),
+    //                 retrieveChanges(id),
+    //                 rs.getInt("parent_id"),
+    //                 rs.getInt("active_task"),
+    //                 rs.getInt("time_left"),
+    //             );
+    //         }
+    //         throw new SQLException("Getting timeframe failed, no rows obtained.");
+    //     }
+    //     catch (SQLException e) {
+    //         throw new RuntimeException(e);
+    //     }
+    // }
 
     public static HashMap<Long, Integer> retrievePeriod(long timeframe_id) {
         HashMap<Long, Integer> period = new HashMap<>();

@@ -30,8 +30,10 @@ public class TimeFrame implements Serializable
     final private long parent;
     private long current;
     private int left;
+    final private int user;
 
-    TimeFrame(List<Task> t) {
+    TimeFrame(int u, List<Task> t) {
+        user = u;
         parent = -1;
         id = generateId();
         nextPeriod = new HashMap<>();
@@ -46,7 +48,8 @@ public class TimeFrame implements Serializable
         startTask();
     }
 
-    TimeFrame() {
+    TimeFrame(int u) {
+        user = u;
         tasks = new HashMap<>();
         states = new HashMap<>();
         nextPeriod = new HashMap<>();
@@ -61,6 +64,7 @@ public class TimeFrame implements Serializable
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
         changes = l;
+        user = tf.user;
         parent = tf.getId();
         id = generateId();
         left = tf.getTimeLeft()-((tf.getTimeLeft()>0)?1:0);
@@ -113,6 +117,7 @@ public class TimeFrame implements Serializable
     public long getId() { return id; }
     public long getCurrentTask() { return current; }
     public long getParent() { return parent; }
+    public int getUser() { return user; }
     public List<Action> getChanges() { return changes; }
 
     public String toString() {

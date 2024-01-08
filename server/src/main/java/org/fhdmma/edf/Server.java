@@ -17,6 +17,7 @@ public class Server implements Closeable, Runnable {
     private Socket socket = null;
     private ObjectOutputStream out = null;
     private DataInputStream in = null;
+    private int user = -1;
 
     public Server(ServerSocket server) throws IOException {
         socket = server.accept();
@@ -29,8 +30,7 @@ public class Server implements Closeable, Runnable {
     public void run() {
         String line = "";
         List<TimeFrame.Action> changes = new LinkedList<>();
-        TimeFrame tf = new TimeFrame();
-
+        TimeFrame tf = null;
         try {
             DatabaseHandler.connect();
         } catch(SQLException e) {
@@ -57,18 +57,31 @@ public class Server implements Closeable, Runnable {
                 line = in.readUTF();
                 switch(line.charAt(0)) {
                     case 'n':
-                        for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
-                            tf = new TimeFrame(tf, changes);
-                            Main.saveTimeFrame(tf);
-                            changes.clear();
-                            out.writeObject(tf);
+                        if(user == -1) {
+                            System.out.println("User not logged in");
+                        } else {
+                            for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
+                                tf = new TimeFrame(tf, changes);
+                                Main.saveTimeFrame(tf);
+                                changes.clear();
+                                out.writeObject(tf);
+                            }
                         }
                         break;
                     case 'a':
-                        var a = line.substring(1).split(",");
-                        changes.add(new TimeFrame.AddTask(
-                                    new Task(Integer.parseInt(a[0]),
-                                        Integer.parseInt(a[1]))));
+                        if(user == -1) {
+                            System.out.println("User not logged in");
+                        } else {
+                            var a = line.substring(1).split(",");
+                            changes.add(new TimeFrame.AddTask(
+                                        new Task(Integer.parseInt(a[0]),
+                                            Integer.parseInt(a[1]))));
+                        }
+                        break;
+                    case 'u':
+                        var u = line.substring(1).split(",");
+                        user = DatabaseHandler.userLogin(u[0],u[1]).getId();
+                        tf = new TimeFrame(user);
                         break;
                 }
             } catch(EOFException e) {
