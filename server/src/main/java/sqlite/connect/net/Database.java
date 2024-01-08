@@ -1,4 +1,4 @@
-package org.fhdmma.edf;
+package sqlite.connect.net;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,24 +8,40 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random; //TODO: Remove after implementing GetLatestTask
-import java.lang.Math; //TODO: Also remove this
-import javax.management.InvalidAttributeValueException;
 
-public class Database {
-    private static Connection connection;
-    private static Statement statement;
-    private static Random rand = new Random();
+import org.fhdmma.edf.*;
 
-    public static Boolean isValid() throws SQLException {
-        return connection.isValid(100);
-    }
+class Database {
+    static Connection connection;
+    static Statement statement;
+
     public static void connect() throws SQLException {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:server.db");
             statement = connection.createStatement();
             statement.setQueryTimeout(30);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void disconnect() throws SQLException {
+        connection.close();
+    }
+
+    public static Boolean isValid() {
+        try {
+            return connection.isValid(100);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void createDatabase() throws SQLException {
+        try {
             statement.executeUpdate("DROP TABLE IF EXISTS users");
             statement.executeUpdate("DROP TABLE IF EXISTS tasks");
             statement.executeUpdate("DROP TABLE IF EXISTS timeframes");
@@ -44,8 +60,10 @@ public class Database {
                     "period INTEGER);");
             statement.executeUpdate("CREATE TABLE timeframes" +
                     "(id INTEGER PRIMARY KEY, "+
+                    "parent_id INTEGER NULL, "+
                     "active_task INTEGER, "+
-                    "time_left INTEGER);");
+                    "time_left INTEGER, "+
+                    "FOREIGN KEY(parent_id) REFERENCES timeframes(id));");
             statement.executeUpdate("CREATE TABLE timeframes_tasks" +
                     "(timeframe_id INTEGER," +
                     "task_id INTEGER," +
@@ -79,43 +97,105 @@ public class Database {
         }
     }
 
-    public static void disconnect() throws SQLException {
-        connection.close();
-    }
-
-    public static User userLogin(String username, String password) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?;")) {
-            ps.setString(1, username);
-            ps.setString(2, password);
-
-            ResultSet rs = ps.executeQuery();
-            return new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"));
+    public static void insertChange(long timeframe_id, long task_id, String action) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO actions(timeframe_id, task_id, action) VALUES(?, ?, ?);")) {
+            ps.setLong(1, timeframe_id);
+            ps.setLong(2, task_id);
+            ps.setString(3, action);
         }
         catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
-
     }
 
-    public static Boolean userRegister(String username, String password1, String password2) throws InvalidAttributeValueException {
-        if (!password2.equals(password1)) {
-            throw new InvalidAttributeValueException("Passwords are not the same!");
+    public static void insertM2M(long timeframe_id, long task_id) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO timeframes_tasks VALUES(?, ?)")) {
+            ps.setLong(1, timeframe_id);
+            ps.setLong(2, task_id);
+            ps.executeUpdate();
         }
+        catch(SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void insertPeriod(long timeframe_id, long task_id, int timeframes_needed){
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
+            ps.setLong(1, timeframe_id);
+            ps.setLong(2, task_id);
+            ps.setInt(3, timeframes_needed);
+            ps.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void insertState(long timeframe_id, long task_id, String state){
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO states VALUES(?, ?, ?);")){
+            ps.setLong(1, timeframe_id);
+            ps.setLong(2, task_id);
+            ps.setString(3, state);
+            ps.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Task insertTask(long timeframe_id, int duration, int period) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO tasks(duration, period) VALUES(?, ?);")) {
+            ps.setInt(1, duration);
+            ps.setInt(2, period);
+            ps.executeUpdate();
+
+            Task task = retrieveTask(period, duration);
+
+            insertM2M(timeframe_id, task.getId());
+
+            return task;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Task insertTask(long timeframe_id, long task_id, int duration, int period) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO tasks VALUES(?, ?, ?);")) {
+            ps.setLong(1, task_id);
+            ps.setInt(2, duration);
+            ps.setInt(3, period);
+            ps.executeUpdate();
+
+            Task task = retrieveTask(period, duration);
+
+            insertM2M(timeframe_id, task.getId());
+
+            return task;
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void insertTimeFrame(TimeFrame tf){
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT username FROM users WHERE username = ?;");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?)");
+            ps.setLong(1, tf.getId());
+            ps.setLong(2, tf.getParent());
+            ps.setLong(3, tf.getCurrentTask());
+            ps.setInt(4, tf.getTimeLeft());
+            ps.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Boolean insertUser(String username, String password) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO users(username, password) VALUES(?,?);")) {
             ps.setString(1, username);
-
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                throw new InvalidAttributeValueException("Username is taken.");
-            }
-            System.out.println("Jest git.");
-
-            ps = connection.prepareStatement("INSERT INTO users(username, password) VALUES(?,?);");
-            ps.setString(1, username);
-            ps.setString(2, password1);
+            ps.setString(2, password);
             ps.executeUpdate();
             ps.close();
             return true;
@@ -134,21 +214,21 @@ public class Database {
                     ps.setString(3, "ADD");
                 }
                 else if (action instanceof TimeFrame.RemoveTask){
-                    ps.setInt(2, ((TimeFrame.RemoveTask)action).id);
+                    ps.setLong(2, ((TimeFrame.RemoveTask)action).id);
                     ps.setString(3, "REMOVE");
                 }
                 ps.executeUpdate();
             }
         }
         catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
     private static void addPeriodList(long timeframe_id, HashMap<Long, Integer> periods){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
             ps.setLong(1, timeframe_id);
-            for (Map.Entry<Long, Integer> period : periods.entrySet()) {
+            for (HashMap.Entry<Long, Integer> period : periods.entrySet()) {
                 ps.setLong(2, period.getKey());
                 ps.setInt(3, period.getValue());
                 ps.executeUpdate();
@@ -162,7 +242,7 @@ public class Database {
     private static void addStateList(long timeframe_id, HashMap<Long, TimeFrame.State> states){
         try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO states VALUES(?, ?, ?);")){
             ps.setLong(1, timeframe_id);
-            for (Map.Entry<Long, TimeFrame.State> state : states.entrySet()) {
+            for (HashMap.Entry<Long, TimeFrame.State> state : states.entrySet()) {
                 ps.setLong(2, state.getKey());
                 ps.setString(3, state.getValue().toString());
                 ps.executeUpdate();
@@ -193,7 +273,7 @@ public class Database {
                     return null;
                 }
 
-                Task task = new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+                Task task = new Task(rs.getLong("id"), rs.getInt("duration"), rs.getInt("period"));
                 try {
                     ps = connection.prepareStatement("INSERT OR IGNORE INTO timeframes_tasks VALUES(?, ?)");
                     ps.setLong(1, timeframe_id);
@@ -203,7 +283,7 @@ public class Database {
                 catch(SQLException e) {
                     throw new RuntimeException(e);
                 }
-                return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+                return new Task(rs.getLong("id"), rs.getInt("duration"), rs.getInt("period"));
             }
             catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -219,7 +299,6 @@ public class Database {
             addTask(timeframe_id, task.getDuration(), task.getPeriod());
         }
     }
-// TODO: Add timeframe actions
     public static void addTimeFrame(TimeFrame tf) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes(id, active_task, time_left) VALUES(?, ?, ?)");
@@ -237,60 +316,72 @@ public class Database {
         addActions(tf.getId(), tf.getChanges());
     }
 
-    private static List<TimeFrame.Action> getChanges(int timeframe_id){
-        List<TimeFrame.Action> queue = new LinkedList<>();
+    public static List<TimeFrame.Action> retrieveChanges(long timeframe_id){
+        List<TimeFrame.Action> list = new LinkedList<>();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM actions NATURAL JOIN tasks WHERE timeframe_id = ?")) {
-            ps.setInt(1, timeframe_id);
+            ps.setLong(1, timeframe_id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 if (rs.getString("action").equals("ADD")) {
-                    queue.add(new TimeFrame.AddTask(new Task(
+                    list.add(new TimeFrame.AddTask(new Task(
                         rs.getInt("task_id"),
                         rs.getInt("duration"),
                         rs.getInt("period"))));
                 }
                 else if (rs.getString("action").equals("REMOVE")) {
-                    queue.add(new TimeFrame.RemoveTask(rs.getInt("task_id")));
+                    list.add(new TimeFrame.RemoveTask(rs.getInt("task_id")));
                 }
             }
-            return queue;
+            return list;
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static TimeFrame getLatestTimeFrame() throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
-        ResultSet rs = ps.executeQuery();
+    public static Task retrieveLatestTask() {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks ORDER BY id DESC LIMIT 1")) {
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
 
-        // TODO: Make it return all values - not nulls
-        if (rs.next()) {
-            int id = rs.getInt("id");
-            return new TimeFrame(
+            return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static TimeFrame retrieveLatestTimeFrame() throws SQLException {
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes ORDER BY id DESC LIMIT 1");
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                long id = rs.getInt("id");
+                return new TimeFrame(
                     id,
-                    getTasksList(id),
-                    getPeriod(id),
-                    getStates(id),
-                    getChanges(id),
-                    0, //TODO: Change 0 to parent of timeframe
+                    retrieveTasksList(id),
+                    retrievePeriod(id),
+                    retrieveStates(id),
+                    retrieveChanges(id),
+                    rs.getInt("parent_id"),
                     rs.getInt("active_task"),
                     rs.getInt("time_left")
-                    );
+                );
+            }
+            throw new SQLException("Getting timeframe failed, no rows obtained.");
         }
-        return new TimeFrame();
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static Task getLatestTask() throws SQLException {
-        //TODO: Implement this
-        return new Task(Math.abs(rand.nextInt()), 0, 0);
-    }
-
-
-    private static HashMap<Long, Integer> getPeriod(long timeframe_id) {
+    public static HashMap<Long, Integer> retrievePeriod(long timeframe_id) {
         HashMap<Long, Integer> period = new HashMap<>();
-        try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM periods WHERE timeframe_id = ?;");
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM periods WHERE timeframe_id = ?;")) {
             ps.setLong(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
@@ -307,10 +398,9 @@ public class Database {
         }
     }
 
-    private static HashMap<Long, TimeFrame.State> getStates(long timeframe_id) {
+    public static HashMap<Long, TimeFrame.State> retrieveStates(long timeframe_id) {
         HashMap<Long, TimeFrame.State> states = new HashMap<>();
-        try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM states WHERE timeframe_id = ?;");
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM states WHERE timeframe_id = ?;")) {
             ps.setLong(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
@@ -327,7 +417,27 @@ public class Database {
         }
     }
 
-    private static HashMap<Long, Task> getTasksList(long timeframe_id){
+    public static Task retrieveTask(int period, int duration) {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT id, duration, period FROM tasks " +
+                                                                "WHERE duration = ? AND period = ? ORDER BY id DESC LIMIT 1");) {
+            // TODO: Race condition possible.
+            ps.setInt(1, duration);
+            ps.setInt(2, period);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                return null;
+            }
+
+            return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static HashMap<Long, Task> retrieveTasksList(long timeframe_id){
         HashMap<Long, Task> tasks = new HashMap<>();
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM timeframes_tasks NATURAL JOIN tasks WHERE timeframe_id = ?;");
@@ -345,6 +455,37 @@ public class Database {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static User retrieveUser(String username, String password) {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?;")) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            ResultSet rs = ps.executeQuery();
+            return new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"));
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Boolean isUsernameUnique(String username) {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT username FROM users WHERE username = ?;")) {
+            ps.setString(1, username);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return true;
+            }
+            return false;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static void printTasks() throws SQLException {

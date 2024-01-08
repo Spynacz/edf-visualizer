@@ -11,6 +11,7 @@ import java.net.SocketException;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.LinkedList;
+import sqlite.connect.net.DatabaseHandler;
 
 public class Server implements Closeable, Runnable {
     private Socket socket = null;
@@ -31,13 +32,13 @@ public class Server implements Closeable, Runnable {
         TimeFrame tf = new TimeFrame();
 
         try {
-            Database.connect();
+            DatabaseHandler.connect();
         } catch(SQLException e) {
             e.printStackTrace();
             System.out.println("Database error, shutting down connection");
             try {
-                if(Database.isValid())
-                    Database.disconnect();
+                if(DatabaseHandler.isValid())
+                    DatabaseHandler.disconnect();
             } catch(SQLException err) {
                 e.printStackTrace();
                 System.out.println("Couldn't check DB connection - not closing");
@@ -73,7 +74,7 @@ public class Server implements Closeable, Runnable {
             } catch(EOFException e) {
                 try {
                     try {
-                        Database.disconnect();
+                        DatabaseHandler.disconnect();
                     } catch(SQLException err) {
                         err.printStackTrace();
                         System.out.println("Couldn't disconnect from DB");
@@ -86,7 +87,7 @@ public class Server implements Closeable, Runnable {
             } catch(SocketException e) {
                 System.out.println("Client disconnected");
                 try {
-                    Database.disconnect();
+                    DatabaseHandler.disconnect();
                 } catch(SQLException err) {
                     err.printStackTrace();
                     System.out.println("Couldn't disconnect from DB");
@@ -95,6 +96,8 @@ public class Server implements Closeable, Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

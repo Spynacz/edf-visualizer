@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.lang.InterruptedException;
+import sqlite.connect.net.DatabaseHandler;
 
 public class Main
 {
@@ -35,9 +36,9 @@ public class Main
 
     private static void save() {
         try {
-            if(!Database.isValid())
-                Database.connect();
-            Database.addTimeFrame(saveList.remove());
+            if(DatabaseHandler.isValid())
+                DatabaseHandler.connect();
+            DatabaseHandler.addTimeFrame(saveList.remove());
         } catch(SQLException e) {
             e.printStackTrace();
             System.out.println("Couldn't add timeframe to DB");

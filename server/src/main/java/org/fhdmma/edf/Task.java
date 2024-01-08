@@ -9,7 +9,7 @@ public final class Task implements Serializable
     private final int duration;
     private final int period;
 
-    public Task(int i, int d, int p) {
+    public Task(long i, int d, int p) {
         duration = d;
         period = p;
         id = i;
