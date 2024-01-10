@@ -18,10 +18,10 @@ public class Model {
     private final StringProperty title = new SimpleStringProperty("");
     private final IntegerProperty duration = new SimpleIntegerProperty();
     private final IntegerProperty period = new SimpleIntegerProperty();
-    private final ObservableList<EDFTask> taskList = FXCollections.observableArrayList();
+    private final ObservableList<Task> taskList = FXCollections.observableArrayList();
     private final ObservableList<String> taskListNames = FXCollections.observableArrayList();
     // TODO: consider splitting into two models
-    private final ObjectProperty<EDFTask> selectedTask = new SimpleObjectProperty<EDFTask>();
+    private final ObjectProperty<Task> selectedTask = new SimpleObjectProperty<Task>();
     private final StringProperty selectedTitle = new SimpleStringProperty("");
     private final StringProperty selectedDuration = new SimpleStringProperty("");
     private final StringProperty selectedPeriod = new SimpleStringProperty("");
@@ -40,7 +40,9 @@ public class Model {
     private final StringProperty password = new SimpleStringProperty("");
 
     private final StringProperty currentTask = new SimpleStringProperty("");
+    private final IntegerProperty numberTimeframes = new SimpleIntegerProperty();
 
+    private final ObservableList<Long> schedule = FXCollections.observableArrayList();
     public String getTitle() {
         return title.get();
     }
@@ -77,11 +79,11 @@ public class Model {
         this.period.set(period);
     }
 
-    public ObservableList<EDFTask> getTaskList() {
+    public ObservableList<Task> getTaskList() {
         return taskList;
     }
 
-    public void setTaskList(List<EDFTask> tasks) {
+    public void setTaskList(List<Task> tasks) {
         this.taskList.setAll(tasks);
     }
 
@@ -93,15 +95,15 @@ public class Model {
         this.taskListNames.setAll(tasks);
     }
 
-    public EDFTask getSelectedTask() {
+    public Task getSelectedTask() {
         return selectedTask.get();
     }
 
-    public ObjectProperty<EDFTask> selectedTaskProperty() {
+    public ObjectProperty<Task> selectedTaskProperty() {
         return selectedTask;
     }
 
-    public void setSelectedTask(EDFTask task) {
+    public void setSelectedTask(Task task) {
         this.selectedTask.set(task);
     }
 
@@ -271,5 +273,25 @@ public class Model {
 
     public StringProperty connectButtonLabelProperty() {
         return connectButtonLabel;
+    }
+    
+    public int getNumberTimeFrames() {
+        return numberTimeframes.get();
+    }
+
+    public void setNumberTimeFrames(int num) {
+        this.numberTimeframes.set(num);
+    }
+
+    public IntegerProperty numberTimeFramesProperty() {
+        return numberTimeframes;
+    }
+
+    public ObservableList<Long> getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(List<Long> list) {
+        this.schedule.setAll(list);
     }
 }

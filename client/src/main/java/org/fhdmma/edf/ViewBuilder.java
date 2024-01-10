@@ -41,14 +41,16 @@ public class ViewBuilder implements Builder<Region> {
     private final Consumer<Runnable> taskRemover;
     private final Consumer<Runnable> connector;
     private final Runnable disconnector;
+    private final Runnable tasksScheduler;
 
     public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskRemover,
-            Consumer<Runnable> connector, Runnable disconnector) {
+            Consumer<Runnable> connector, Runnable disconnector, Runnable taskScheduler) {
         this.model = model;
         this.taskAdder = taskAdder;
         this.connector = connector;
         this.disconnector = disconnector;
         this.taskRemover = taskRemover;
+        this.tasksScheduler = taskScheduler;
     }
 
     @Override
@@ -67,12 +69,27 @@ public class ViewBuilder implements Builder<Region> {
         vbox.getChildren().add(setClientTasks());
         VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
 
+        HBox schedule = new HBox(boundIntegerField(model.numberTimeFramesProperty(), ""), setScheduleButton(tasksScheduler));
+
         vbox.getChildren().add(setAddTaskButton());
         vbox.getChildren().add(setRemoveTaskButton(taskRemover));
+        vbox.getChildren().add(schedule);
         vbox.getChildren().add(setConnectButton(disconnector));
 
         vbox.getStyleClass().add("leftbox");
         return vbox;
+    }
+
+    private Node setScheduleButton(Runnable scheduleTasks) {
+        Button button = new Button("Schedule");
+
+        button.setOnAction(evt -> {
+            scheduleTasks.run();
+        });
+
+        button.getStyleClass().add("schedule-button");
+
+        return button;
     }
 
     private Node createCenter() {
@@ -123,12 +140,12 @@ public class ViewBuilder implements Builder<Region> {
     }
 
     private Node setClientTasks() {
-        ListView<EDFTask> listView = new ListView<>();
+        ListView<Task> listView = new ListView<>();
         listView.setItems(model.getTaskList());
 
         listView.setCellFactory(lv -> {
-            return new ListCell<EDFTask>() {
-                private HBox content;
+            return new ListCell<Task>() {
+                private VBox content;
                 private Text name;
                 private Text period;
                 private Text duration;
@@ -137,12 +154,12 @@ public class ViewBuilder implements Builder<Region> {
                     name = new Text();
                     period = new Text();
                     duration = new Text();
-                    VBox vbox = new VBox(period, duration);
-                    content = new HBox(10, name, vbox);
+                    HBox hbox = new HBox(duration, period);
+                    content = new VBox(10, name, hbox);
                 }
 
                 @Override
-                protected void updateItem(EDFTask item, boolean empty) {
+                protected void updateItem(Task item, boolean empty) {
                     super.updateItem(item, empty);
                     if (item != null && !empty) {
                         name.setText(item.getName());
@@ -157,7 +174,7 @@ public class ViewBuilder implements Builder<Region> {
         });
 
         listView.setOnMouseClicked(evt -> {
-            EDFTask t = listView.getSelectionModel().getSelectedItem();
+            Task t = listView.getSelectionModel().getSelectedItem();
             if (t != null) {
                 model.setSelectedTask(t);
                 model.setTaskSelected(true);

@@ -14,7 +14,7 @@ public class Controller {
     public Controller() {
         Model model = new Model();
         this.interactor = new Interactor(model);
-        this.viewBuilder = new ViewBuilder(model, this::addTask, this::removeTask, this::connectToServer, this::disconnectFromServer);
+        this.viewBuilder = new ViewBuilder(model, this::addTask, this::removeTask, this::connectToServer, this::disconnectFromServer, this::scheduleTasks);
 
         // temporary
         interactor.updateTaskListModel();
@@ -89,7 +89,23 @@ public class Controller {
         removeTaskThread.start();
     }
 
+    private void scheduleTasks() {
+        Task<Void> scheduleTasksTask = new Task<>() {
+            @Override
+            protected Void call() {
+                interactor.scheduleTasks();
+                return null;
+            }
+        };
+        scheduleTasksTask.setOnSucceeded(evt -> {
+            // interactor.updateGraphModel();
+        });
+        Thread scheduleTasksThread = new Thread(scheduleTasksTask);
+        scheduleTasksThread.start();
+    }
+
     public Region getView() {
         return viewBuilder.build();
     }
+
 }

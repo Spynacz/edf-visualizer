@@ -11,7 +11,7 @@ import javafx.beans.binding.Bindings;
 public class Interactor {
 
     private final Model model;
-    private EDFTask selectedTask;
+    private Task selectedTask;
     private String connectionErrorMessage;
     private boolean connectionError = false;
 
@@ -32,10 +32,11 @@ public class Interactor {
     }
 
     public void addTask() {
-        EDFTask newTask = new EDFTask(model.getTitle(), model.getPeriod(), model.getDuration());
+        Task newTask = new Task(model.getTitle(), model.getDuration(), model.getPeriod());
 
         // change to different storage
         Main.addTask(newTask);
+        Client.sendTask(newTask);
     }
 
     public void removeTask() {
@@ -49,10 +50,10 @@ public class Interactor {
     public void updateTaskListModel() {
         model.setTaskList(Main.tasks);
         List<String> names = new ArrayList<>();
-        for (EDFTask task : Main.tasks) {
+        for (Task task : Main.tasks) {
             names.add(task.getName());
         }
-        model.setTaskListNames(names);;
+        model.setTaskListNames(names);
     }
 
     public void updateSelectedModel() {
@@ -97,5 +98,17 @@ public class Interactor {
 
     public void updateConnectedModel(boolean value) {
         model.setConnected(value);
+    }
+
+    public void scheduleTasks() throws Exception {
+        try {
+            model.setSchedule(Client.scheduleTasks(model.getNumberTimeFrames()));
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    public void updateGraphModel() {
     }
 }

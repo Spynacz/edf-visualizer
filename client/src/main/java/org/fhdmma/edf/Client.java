@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,26 +18,39 @@ public class Client {
     private static int port = 9999;
     private static DataOutputStream out;
     private static ObjectInputStream in;
+    private static List<Long> timeframes = new ArrayList<>();
 
-    public static void connect(String address, String username, String password) throws IOException, UnknownHostException {
+    public static void connect(String address, String username, String password)
+            throws IOException, UnknownHostException {
         socket = new Socket(address, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
 
-        out.writeUTF("GETPASS" + username);
-        String pass = "";
+        out.writeUTF("u" + username + "," + password);
+    }
+
+    public static void sendTask(Task task) {
         try {
-            pass = (String) in.readObject();
-        } catch (ClassNotFoundException e) {
+            out.writeUTF("a" + task.getId() + "," + task.getDuration() + "," + task.getPeriod());
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
 
-        // TODO: Add password hashing (maybe)
+    public static List<Long> scheduleTasks(int num) throws IOException, ClassNotFoundException {
+        out.writeUTF("n" + num);
 
-        if (pass.equals(password)) {
-            System.out.println("Connected to " + address + ":" + port + " as " + username);
+        for (int i = 0; i < num; i++) {
+            timeframes.add((Long)Client.getInput().readObject());
         }
+        System.out.println(timeframes);
+        
+        return timeframes;
+    }
+
+    public static ObjectInputStream getInput() {
+        return in;
     }
 
     public static void disconnect() throws IOException {
