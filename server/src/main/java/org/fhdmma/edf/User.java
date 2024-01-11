@@ -10,7 +10,7 @@ public class User {
     private String username;
     private String password;
 
-    public String toString(){
+    public String toString() {
         return "id: " + id + "\nusername: " + username + "\npassword: " + password;
     }
 }

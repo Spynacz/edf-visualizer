@@ -1,4 +1,5 @@
 package org.fhdmma.edf;
+
 import java.util.Random;
 
 public final class Utility {

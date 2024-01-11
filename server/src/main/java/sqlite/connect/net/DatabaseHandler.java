@@ -25,31 +25,31 @@ public class DatabaseHandler {
 
     public static User userLogin(String username, String password) throws SQLException {
         User u = Database.retrieveUser(username, password);
-        if(u == null) {
+        if (u == null) {
             Database.insertUser(username, password);
             u = Database.retrieveUser(username, password);
         }
+
         return u;
     }
 
     private static void addChangeList(long timeframe_id, List<TimeFrame.Action> queue) {
         for (TimeFrame.Action action : queue) {
-            if (action instanceof TimeFrame.AddTask){
-                Database.insertChange(timeframe_id, ((TimeFrame.AddTask)action).task.getId(), "ADD");
-            }
-            else if (action instanceof TimeFrame.RemoveTask){
-                Database.insertChange(timeframe_id, ((TimeFrame.RemoveTask)action).id, "REMOVE");
+            if (action instanceof TimeFrame.AddTask) {
+                Database.insertChange(timeframe_id, ((TimeFrame.AddTask) action).task.getId(), "ADD");
+            } else if (action instanceof TimeFrame.RemoveTask) {
+                Database.insertChange(timeframe_id, ((TimeFrame.RemoveTask) action).id, "REMOVE");
             }
         }
     }
 
-    private static void addPeriodList(long timeframe_id, HashMap<Long, Integer> periods){
+    private static void addPeriodList(long timeframe_id, HashMap<Long, Integer> periods) {
         for (Map.Entry<Long, Integer> period : periods.entrySet()) {
             Database.insertPeriod(timeframe_id, period.getKey(), period.getValue());
         }
     }
 
-    private static void addStateList(long timeframe_id, HashMap<Long, TimeFrame.State> states){
+    private static void addStateList(long timeframe_id, HashMap<Long, TimeFrame.State> states) {
         for (Map.Entry<Long, TimeFrame.State> state : states.entrySet()) {
             Database.insertState(timeframe_id, state.getKey(), state.getValue().toString());
         }
@@ -82,7 +82,7 @@ public class DatabaseHandler {
     }
 
     // public static TimeFrame getLatestTimeFrame() throws SQLException {
-    //     return Database.retrieveLatestTimeFrame();
+    // return Database.retrieveLatestTimeFrame();
     // }
 
     public static void printTasks() throws SQLException {

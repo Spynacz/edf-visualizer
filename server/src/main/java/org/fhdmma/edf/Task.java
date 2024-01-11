@@ -1,8 +1,11 @@
 package org.fhdmma.edf;
+
 import java.io.Serializable;
 
-public final class Task implements Serializable
-{
+import lombok.Getter;
+
+@Getter
+public final class Task implements Serializable {
     final private static long serialVersionUID = 1l;
 
     private final long id;
@@ -10,29 +13,25 @@ public final class Task implements Serializable
     private final int period;
 
     public Task(long i, int d, int p) {
+        id = i;
         duration = d;
         period = p;
-        id = i;
     }
 
     public Task(int d, int p) {
+        id = generateId();
         duration = d;
         period = p;
-        id = generateId();
     }
-
-    public long getId() { return id; }
-    public int getDuration() { return duration; }
-    public int getPeriod() { return period; }
 
     public String toString() {
         return "{ id: " + id +
-            ", duration: " + duration +
-            ", period: " + period + " }";
+                ", duration: " + duration +
+                ", period: " + period + " }";
     }
 
     private long generateId() {
-        return System.currentTimeMillis()*1000 +
-            Utility.rand.nextInt()%1000000;
+        return System.currentTimeMillis() * 1000 +
+                Utility.rand.nextInt() % 1000000;
     }
 }
