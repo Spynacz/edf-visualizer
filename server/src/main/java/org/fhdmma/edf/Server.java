@@ -35,6 +35,8 @@ public class Server implements Closeable, Runnable {
         List<TimeFrame.Action> changes = new LinkedList<>();
         TimeFrame tf = null;
         Task task = null;
+        String[] split = null;
+        String str = null;
 
         try {
             DatabaseHandler.connect();
@@ -80,17 +82,25 @@ public class Server implements Closeable, Runnable {
                             System.out.println("User not logged in");
                             out.writeObject(null);
                         } else {
-                            var a = line.substring(1).split(",");
-                            task = new Task(Integer.parseInt(a[0]),
-                                    Integer.parseInt(a[1]));
+                            split = line.substring(1).split(",");
+                            task = new Task(Integer.parseInt(split[0]),
+                                    Integer.parseInt(split[1]));
                             changes.add(new TimeFrame.AddTask(task));
                             out.writeObject(task);
                         }
                         break;
+                    case 'r':
+                        if (user == -1) {
+                            System.out.println("User not logged in");
+                        } else {
+                            str = line.substring(1);
+                            changes.add(new TimeFrame.RemoveTask(Long.parseLong(str)));
+                        }
+                        break;
                     case 'u':
-                        var u = line.substring(1).split(",");
+                        split = line.substring(1).split(",");
                         try {
-                            user = DatabaseHandler.userLogin(u[0], u[1]).getId();
+                            user = DatabaseHandler.userLogin(split[0], split[1]).getId();
                             tf = new TimeFrame(user);
                         } catch(FailedLoginException e) {
                             System.out.println("Wrong password");

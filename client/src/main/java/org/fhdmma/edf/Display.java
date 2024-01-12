@@ -18,10 +18,12 @@ public final class Display {
             if(prevPeriods.containsKey(id)) {
                 prevPeriod = prevPeriods.get(id);
                 prevPeriods.replace(id, tf.getTimeFramesNeeded().get(id));
-                if(prevPeriod-1 != prevPeriods.get(id))
-                    prevColors.replace(id, !prevColors.get(id));
-                if(prevColors.get(id))
-                    System.out.print("\u001B[96m");
+                if(prevPeriods.get(id)!=null) {
+                    if(prevPeriod-1 != prevPeriods.get(id))
+                        prevColors.replace(id, !prevColors.get(id));
+                    if(prevColors.get(id))
+                        System.out.print("\u001B[96m");
+                }
             } else {
                 prevPeriods.put(id, tf.getTimeFramesNeeded().get(id));
                 prevColors.put(id, false);

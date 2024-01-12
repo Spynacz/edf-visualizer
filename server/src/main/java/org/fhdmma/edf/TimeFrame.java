@@ -26,7 +26,7 @@ public class TimeFrame implements Serializable {
 
     @AllArgsConstructor
     static public class RemoveTask implements Action {
-        final public int id;
+        final public long id;
     }
 
     final private static long serialVersionUID = 1l;
