@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.security.auth.login.FailedLoginException;
 
 import org.fhdmma.edf.Task;
 import org.fhdmma.edf.TimeFrame;
@@ -23,7 +24,7 @@ public class DatabaseHandler {
         return Database.isValid();
     }
 
-    public static User userLogin(String username, String password) throws SQLException {
+    public static User userLogin(String username, String password) throws SQLException, FailedLoginException {
         User u = Database.retrieveUser(username, password);
         if (u == null) {
             Database.insertUser(username, password);

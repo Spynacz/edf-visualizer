@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import javax.security.auth.login.FailedLoginException;
 
 import org.fhdmma.edf.Task;
 import org.fhdmma.edf.TimeFrame;
@@ -461,15 +462,21 @@ class Database {
         }
     }
 
-    public static User retrieveUser(String username, String password) {
+    public static User retrieveUser(String username, String password) throws FailedLoginException {
         try (PreparedStatement ps = connection
-                .prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?;")) {
+                .prepareStatement("SELECT * FROM users WHERE username = ?;")) {
             ps.setString(1, username);
-            ps.setString(2, password);
 
             ResultSet rs = ps.executeQuery();
-
-            return new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"));
+            int id = rs.getInt("id");
+            if(rs.wasNull()) return null;
+            String uname = rs.getString("username");
+            String pass = rs.getString("password");
+            if(password.equals(pass)) {
+                return new User(id, uname, pass);
+            } else {
+                throw new FailedLoginException("Invalid password");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

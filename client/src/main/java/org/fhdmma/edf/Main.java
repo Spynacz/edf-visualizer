@@ -25,6 +25,14 @@ public class Main {
                             e.printStackTrace();
                         }
                         break;
+                    case 'a':
+                        Client.getOutput().writeUTF(line);
+                        try {
+                            System.out.println((Task)Client.getInput().readObject());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     default:
                         Client.getOutput().writeUTF(line);
                         break;

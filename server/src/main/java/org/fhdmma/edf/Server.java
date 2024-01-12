@@ -12,6 +12,7 @@ import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import javax.security.auth.login.FailedLoginException;
 
 import sqlite.connect.net.DatabaseHandler;
 
@@ -33,6 +34,7 @@ public class Server implements Closeable, Runnable {
         String line = "";
         List<TimeFrame.Action> changes = new LinkedList<>();
         TimeFrame tf = null;
+        Task task = null;
 
         try {
             DatabaseHandler.connect();
@@ -76,17 +78,23 @@ public class Server implements Closeable, Runnable {
                     case 'a':
                         if (user == -1) {
                             System.out.println("User not logged in");
+                            out.writeObject(null);
                         } else {
                             var a = line.substring(1).split(",");
-                            changes.add(new TimeFrame.AddTask(
-                                    new Task(Long.parseLong(a[0]), Integer.parseInt(a[1]),
-                                            Integer.parseInt(a[2]))));
+                            task = new Task(Integer.parseInt(a[0]),
+                                    Integer.parseInt(a[1]));
+                            changes.add(new TimeFrame.AddTask(task));
+                            out.writeObject(task);
                         }
                         break;
                     case 'u':
                         var u = line.substring(1).split(",");
-                        user = DatabaseHandler.userLogin(u[0], u[1]).getId();
-                        tf = new TimeFrame(user);
+                        try {
+                            user = DatabaseHandler.userLogin(u[0], u[1]).getId();
+                            tf = new TimeFrame(user);
+                        } catch(FailedLoginException e) {
+                            System.out.println("Wrong password");
+                        }
                         break;
                 }
             } catch (EOFException e) {
