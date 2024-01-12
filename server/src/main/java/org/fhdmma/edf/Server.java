@@ -69,7 +69,7 @@ public class Server implements Closeable, Runnable {
                                 tf = new TimeFrame(tf, changes);
                                 Main.saveTimeFrame(tf);
                                 changes.clear();
-                                out.writeObject(tf);
+                                out.writeObject(tf.getCurrentTask());
                             }
                         }
                         break;
@@ -79,8 +79,8 @@ public class Server implements Closeable, Runnable {
                         } else {
                             var a = line.substring(1).split(",");
                             changes.add(new TimeFrame.AddTask(
-                                    new Task(Integer.parseInt(a[0]),
-                                            Integer.parseInt(a[1]))));
+                                    new Task(Long.parseLong(a[0]), Integer.parseInt(a[1]),
+                                            Integer.parseInt(a[2]))));
                         }
                         break;
                     case 'u':
