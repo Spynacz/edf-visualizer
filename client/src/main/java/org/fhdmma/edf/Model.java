@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
 
 public class Model {
 
@@ -43,6 +44,9 @@ public class Model {
     private final IntegerProperty numberTimeframes = new SimpleIntegerProperty();
 
     private final ObservableList<Long> schedule = FXCollections.observableArrayList();
+    private final ObservableList<XYChart.Series<Number, String>> chartData = FXCollections.observableArrayList();
+    private final IntegerProperty chartSize = new SimpleIntegerProperty();
+
     public String getTitle() {
         return title.get();
     }
@@ -90,7 +94,7 @@ public class Model {
     public ObservableList<String> getTaskListNames() {
         return taskListNames;
     }
-    
+
     public void setTaskListNames(List<String> tasks) {
         this.taskListNames.setAll(tasks);
     }
@@ -274,7 +278,7 @@ public class Model {
     public StringProperty connectButtonLabelProperty() {
         return connectButtonLabel;
     }
-    
+
     public int getNumberTimeFrames() {
         return numberTimeframes.get();
     }
@@ -293,5 +297,25 @@ public class Model {
 
     public void setSchedule(List<Long> list) {
         this.schedule.setAll(list);
+    }
+
+    public ObservableList<XYChart.Series<Number, String>> getChartData() {
+        return chartData;
+    }
+
+    public void setChartData(List<XYChart.Series<Number, String>> data) {
+        this.chartData.setAll(data);
+    }
+
+    public int getChartSize() {
+        return chartSize.get();
+    }
+
+    public void setChartSize(int size) {
+        this.chartSize.set(size);
+    }
+
+    public IntegerProperty chartSizeProperty() {
+        return chartSize;
     }
 }

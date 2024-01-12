@@ -92,13 +92,13 @@ public class Controller {
     private void scheduleTasks() {
         Task<Void> scheduleTasksTask = new Task<>() {
             @Override
-            protected Void call() {
+            protected Void call() throws Exception {
                 interactor.scheduleTasks();
                 return null;
             }
         };
         scheduleTasksTask.setOnSucceeded(evt -> {
-            // interactor.updateGraphModel();
+            interactor.updateChartModel();
         });
         Thread scheduleTasksThread = new Thread(scheduleTasksTask);
         scheduleTasksThread.start();

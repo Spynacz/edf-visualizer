@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
 
 public class Interactor {
 
@@ -21,6 +24,7 @@ public class Interactor {
                 model.durationProperty(), model.periodProperty()));
         model.okToConnectProperty().bind(Bindings.createBooleanBinding(this::isDataValid, model.serverIpProperty(),
                 model.usernameProperty(), model.passwordProperty()));
+        model.chartSizeProperty().bind(Bindings.createIntegerBinding(() -> model.getSchedule().size(), model.getSchedule()));
     }
 
     private boolean isTaskValid() {
@@ -108,7 +112,15 @@ public class Interactor {
             throw e;
         }
     }
-    
-    public void updateGraphModel() {
+
+    public void updateChartModel() {
+        for (Task t : model.getTaskList()) {
+            ObservableList<XYChart.Data<Number, String>> seriesData = FXCollections.observableArrayList();
+            for (int i = 0; i < model.getSchedule().size(); i++) {
+                if (t.getId() == model.getSchedule().get(i))
+                    seriesData.add(new XYChart.Data<>(i, t.getName()));
+            }
+            model.getChartData().add(new XYChart.Series<>(seriesData));
+        }
     }
 }

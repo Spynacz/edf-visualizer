@@ -6,21 +6,18 @@ import java.util.function.Consumer;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -102,34 +99,20 @@ public class ViewBuilder implements Builder<Region> {
     private Node setTasksChart() {
         NumberAxis xAxis = new NumberAxis();
         xAxis.setAutoRanging(false);
-        xAxis.setMinorTickCount(5);
+        xAxis.setMinorTickCount(0);
         xAxis.setLowerBound(0);
-        xAxis.setUpperBound(10);
+        xAxis.upperBoundProperty().bind(model.chartSizeProperty());
         xAxis.setTickUnit(1);
 
         CategoryAxis yAxis = new CategoryAxis();
         yAxis.setAutoRanging(false);
         yAxis.setCategories(model.getTaskListNames());
 
-        for (String t : model.getTaskListNames()) {
-            System.out.println(t);
-        }
-
-        TimelineChart chart = new TimelineChart(xAxis, yAxis);
+        ScatterChart<Number, String> chart = new ScatterChart<>(xAxis, yAxis);
         chart.setTitle("Task execution history");
         chart.setLegendVisible(false);
 
-        ObservableList<XYChart.Series<Number, String>> chartData = FXCollections.observableArrayList();
-
-        for (String t : model.getTaskListNames()) {
-            ObservableList<XYChart.Data<Number, String>> seriesData = FXCollections.observableArrayList();
-
-            // TODO: Fill chart with timeframes
-
-            chartData.add(new XYChart.Series<>(seriesData));
-        }
-
-        chart.setData(chartData);
+        chart.setData(model.getChartData());
         return chart;
     }
 
