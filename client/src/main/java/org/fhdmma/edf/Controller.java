@@ -2,6 +2,8 @@ package org.fhdmma.edf;
 
 import java.io.IOException;
 
+import javax.security.auth.login.FailedLoginException;
+
 import javafx.concurrent.Task;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
@@ -23,7 +25,7 @@ public class Controller {
     private void connectToServer(Runnable connectSuccessGUIUpdate) {
         Task<Void> connectTask = new Task<>() {
             @Override
-            protected Void call() throws IOException {
+            protected Void call() throws IOException, FailedLoginException {
                 interactor.connectToServer();
                 return null;
             }
@@ -32,6 +34,7 @@ public class Controller {
             interactor.updateConnectionErrorModel();
             interactor.updateConnectButtonLabel("Disconnect");
             interactor.updateConnectedModel(true);
+            interactor.clearTasks();
             connectSuccessGUIUpdate.run();
         });
         connectTask.setOnFailed(evt -> {

@@ -30,4 +30,7 @@ public class Main extends Application {
         tasks.remove(selectedTask);
     }
 
+    public static void clearTasks() {
+        tasks.clear();
+    }
 }

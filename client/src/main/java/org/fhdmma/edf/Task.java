@@ -16,15 +16,9 @@ public class Task implements Serializable {
     private final int period;
 
     public Task(String name, int duration, int period) {
-        this.id = generateId(name);
+        this.id = -1;
         this.name = name;
         this.duration = duration;
         this.period = period;
-    }
-
-    private long generateId(String name) {
-        // Name representation in radix 36
-        // Consider changing to work with non ASCII characters
-        return Long.parseLong(name, 36);
     }
 }

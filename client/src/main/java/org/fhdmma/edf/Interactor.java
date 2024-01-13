@@ -6,6 +6,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.login.FailedLoginException;
+
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,7 +26,8 @@ public class Interactor {
                 model.durationProperty(), model.periodProperty()));
         model.okToConnectProperty().bind(Bindings.createBooleanBinding(this::isDataValid, model.serverIpProperty(),
                 model.usernameProperty(), model.passwordProperty()));
-        model.chartSizeProperty().bind(Bindings.createIntegerBinding(() -> model.getSchedule().size(), model.getSchedule()));
+        model.chartSizeProperty()
+                .bind(Bindings.createIntegerBinding(() -> model.getSchedule().size(), model.getSchedule()));
     }
 
     private boolean isTaskValid() {
@@ -37,13 +40,11 @@ public class Interactor {
 
     public void addTask() {
         Task newTask = new Task(model.getTitle(), model.getDuration(), model.getPeriod());
-
-        // change to different storage
-        Main.addTask(newTask);
         Client.sendTask(newTask);
     }
 
     public void removeTask() {
+        Client.removeTask(model.getSelectedTask().getId());
         Main.removeTask(model.getSelectedTask());
     }
 
@@ -53,6 +54,7 @@ public class Interactor {
 
     public void updateTaskListModel() {
         model.setTaskList(Main.tasks);
+
         List<String> names = new ArrayList<>();
         for (Task task : Main.tasks) {
             names.add(task.getName());
@@ -66,12 +68,20 @@ public class Interactor {
         model.setSelectedDuration(String.valueOf(selectedTask.getDuration()));
     }
 
-    public void connectToServer() throws IOException {
+    public void clearTasks() {
+        Main.clearTasks();
+        model.getTaskList().clear();
+        model.getTaskListNames().clear();
+        model.getChartData().clear();
+        model.getSchedule().clear();
+    }
+
+    public void connectToServer() throws IOException, FailedLoginException {
         connectionError = false;
         connectionErrorMessage = "";
+
         try {
             Client.connect(model.getServerIp(), model.getUsername(), model.getPassword());
-            System.out.println(connectionError + " " + connectionErrorMessage);
         } catch (ConnectException e) {
             connectionError = true;
             connectionErrorMessage = e.getMessage();
@@ -83,6 +93,10 @@ public class Interactor {
         } catch (IOException e) {
             connectionError = true;
             connectionErrorMessage = "Error: " + e.getMessage();
+            throw e;
+        } catch (FailedLoginException e) {
+            connectionError = true;
+            connectionErrorMessage = e.getMessage();
             throw e;
         }
     }
