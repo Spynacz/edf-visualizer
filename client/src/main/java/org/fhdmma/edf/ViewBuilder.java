@@ -66,32 +66,18 @@ public class ViewBuilder implements Builder<Region> {
         vbox.getChildren().add(setClientTasks());
         VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
 
-        HBox schedule = new HBox(boundIntegerField(model.numberTimeFramesProperty(), ""), setScheduleButton(tasksScheduler));
-
         vbox.getChildren().add(setAddTaskButton());
         vbox.getChildren().add(setRemoveTaskButton(taskRemover));
-        vbox.getChildren().add(schedule);
+        vbox.getChildren().add(setScheduleSection(tasksScheduler));
         vbox.getChildren().add(setConnectButton(disconnector));
 
         vbox.getStyleClass().add("leftbox");
         return vbox;
     }
 
-    private Node setScheduleButton(Runnable scheduleTasks) {
-        Button button = new Button("Schedule");
-
-        button.setOnAction(evt -> {
-            scheduleTasks.run();
-        });
-
-        button.getStyleClass().add("schedule-button");
-
-        return button;
-    }
-
     private Node createCenter() {
-        VBox vbox = new VBox(10, setCurrentTask(), setTasksChart());
-        VBox.setVgrow(vbox.getChildren().get(1), Priority.ALWAYS);
+        VBox vbox = new VBox(setTasksChart());
+        VBox.setVgrow(vbox.getChildren().get(0), Priority.ALWAYS);
         vbox.getStyleClass().add("centerbox");
         return vbox;
     }
@@ -116,11 +102,12 @@ public class ViewBuilder implements Builder<Region> {
         return chart;
     }
 
-    private Node setCurrentTask() {
-        HBox hbox = new HBox(5, new Label("Current task:"), boundLabel(model.currentTaskProperty()));
-        hbox.getStyleClass().add("current-task");
-        return hbox;
-    }
+    // private Node setCurrentTask() {
+    // HBox hbox = new HBox(5, new Label("Current task:"),
+    // boundLabel(model.currentTaskProperty()));
+    // hbox.getStyleClass().add("current-task");
+    // return hbox;
+    // }
 
     private Node setClientTasks() {
         ListView<Task> listView = new ListView<>();
@@ -135,9 +122,11 @@ public class ViewBuilder implements Builder<Region> {
 
                 {
                     name = new Text();
+                    name.getStyleClass().add("name");
                     period = new Text();
                     duration = new Text();
-                    HBox hbox = new HBox(duration, period);
+                    HBox hbox = new HBox(5, duration, period);
+                    hbox.getStyleClass().add("stats");
                     content = new VBox(10, name, hbox);
                 }
 
@@ -178,6 +167,8 @@ public class ViewBuilder implements Builder<Region> {
             dialog.initModality(Modality.APPLICATION_MODAL);
 
             BorderPane borderPane = new BorderPane();
+            borderPane.getStylesheets()
+                    .add(Objects.requireNonNull(this.getClass().getResource("/css/main.css")).toExternalForm());
             Node center = setAddTaskDialog(taskAdder, dialog);
             borderPane.setCenter(center);
             BorderPane.setMargin(center, new Insets(50));
@@ -188,7 +179,7 @@ public class ViewBuilder implements Builder<Region> {
             dialog.show();
         });
 
-        button.getStyleClass().add("add-button");
+        button.getStyleClass().add("button");
 
         return button;
     }
@@ -201,7 +192,7 @@ public class ViewBuilder implements Builder<Region> {
             remove.accept(() -> model.setTaskSelected(false));
         });
 
-        button.getStyleClass().add("remove-button");
+        button.getStyleClass().add("button");
 
         return button;
     }
@@ -211,9 +202,17 @@ public class ViewBuilder implements Builder<Region> {
         Node durationText = boundIntegerField(model.durationProperty(), "Duration", periodText);
         Node titleText = boundTextField(model.titleProperty(), "Title", durationText);
 
+        periodText.getStyleClass().add("dialog-text-field");
+        durationText.getStyleClass().add("dialog-text-field");
+        titleText.getStyleClass().add("dialog-text-field");
+
         HBox title = new HBox(6, new Label("Title:"), hboxSpacer(), titleText);
         HBox duration = new HBox(6, new Label("Duration:"), hboxSpacer(), durationText);
         HBox period = new HBox(6, new Label("Period:"), hboxSpacer(), periodText);
+
+        title.getChildren().get(0).getStyleClass().add("dialog-label");
+        duration.getChildren().get(0).getStyleClass().add("dialog-label");
+        period.getChildren().get(0).getStyleClass().add("dialog-label");
 
         Button confirm = new Button("Confirm");
         confirm.disableProperty().bind(model.okToAddProperty().not());
@@ -222,11 +221,35 @@ public class ViewBuilder implements Builder<Region> {
         });
 
         confirm.setDefaultButton(true);
+        confirm.getStyleClass().add("confirm-button");
 
         VBox vbox = new VBox(10, title, duration, period, confirm);
         vbox.setAlignment(Pos.CENTER);
 
         return vbox;
+    }
+
+    private Node setScheduleSection(Runnable scheduleTasks) {
+        TextField text = (TextField) boundIntegerField(model.numberTimeFramesProperty(), "");
+        text.getStyleClass().add("schedule-field");
+        text.setMaxWidth(70);
+        text.disableProperty().bind(model.connectedProperty().not());
+
+        Button button = new Button("Schedule");
+        button.disableProperty().bind(model.connectedProperty().not());
+
+        button.setOnAction(evt -> {
+            scheduleTasks.run();
+        });
+
+        button.setDefaultButton(true);
+        button.getStyleClass().add("button");
+        button.setMaxWidth(99999);
+
+        HBox schedule = new HBox(text, button);
+        HBox.setHgrow(schedule.getChildren().get(1), Priority.ALWAYS);
+
+        return schedule;
     }
 
     private Node setConnectButton(Runnable disconnect) {
@@ -244,6 +267,8 @@ public class ViewBuilder implements Builder<Region> {
                 dialog.initModality(Modality.APPLICATION_MODAL);
 
                 BorderPane borderPane = new BorderPane();
+                borderPane.getStylesheets()
+                        .add(Objects.requireNonNull(this.getClass().getResource("/css/main.css")).toExternalForm());
                 Node center = setConnectDialog(connector, dialog);
                 borderPane.setCenter(center);
                 BorderPane.setMargin(center, new Insets(50));
@@ -255,7 +280,7 @@ public class ViewBuilder implements Builder<Region> {
             }
         });
 
-        button.getStyleClass().add("add-button");
+        button.getStyleClass().add("button");
 
         return button;
     }
@@ -265,9 +290,17 @@ public class ViewBuilder implements Builder<Region> {
         Node usernameText = boundTextField(model.usernameProperty(), "Username", passwordText);
         Node serverIpText = boundTextField(model.serverIpProperty(), "Server IP", usernameText);
 
+        passwordText.getStyleClass().add("dialog-text-field");
+        usernameText.getStyleClass().add("dialog-text-field");
+        serverIpText.getStyleClass().add("dialog-text-field");
+
         HBox serverIp = new HBox(6, new Label("Address:"), hboxSpacer(), serverIpText);
         HBox username = new HBox(6, new Label("Username:"), hboxSpacer(), usernameText);
         HBox password = new HBox(6, new Label("Password:"), hboxSpacer(), passwordText);
+
+        serverIp.getChildren().get(0).getStyleClass().add("dialog-label");
+        username.getChildren().get(0).getStyleClass().add("dialog-label");
+        password.getChildren().get(0).getStyleClass().add("dialog-label");
 
         Button confirm = new Button("Connect");
         confirm.disableProperty().bind(model.okToConnectProperty().not());
@@ -279,6 +312,7 @@ public class ViewBuilder implements Builder<Region> {
         });
 
         confirm.setDefaultButton(true);
+        confirm.getStyleClass().add("confirm-button");
 
         VBox vbox = new VBox(10, serverIp, username, password, confirm,
                 boundLabel(model.connectionErrorMessageProperty()));

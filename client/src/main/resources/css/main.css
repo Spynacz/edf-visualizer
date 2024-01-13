@@ -7,7 +7,7 @@
 }
 
 .leftbox > * {
-    -fx-pref-width: 200;
+    -fx-pref-width: 250;
 }
 
 /* .task-list:focused { */
@@ -17,8 +17,7 @@
 
 .task-list {
     -fx-background-insets: 0;
-    -fx-border-width: 0 5 0 0;
-    -fx-border-color: #ddd;
+    -fx-border-width: 0;
 }
 
 .task-list .list-cell:even, .task-list .list-cell:odd {
@@ -32,44 +31,73 @@
     -fx-background-color: #e8e8e8;
 }
 
-.add-button {
+.task-list .list-cell .name {
+    -fx-font-size: 22;
+}
+
+.task-list .list-cell .stats {
+    -fx-font-size: 16;
+}
+
+.button {
     -fx-background-color: #fff;
     -fx-font-size: 18;
-    -fx-border-width: 0 5 0 0;
-    -fx-border-color: #ddd;
-    /* -fx-text-fill: red; */
+    -fx-border-width: 1 1 1 1;
+    -fx-border-color: #aaa;
 }
 
-.rightbox {
-    -fx-background-color: #eee;
-    -fx-border-width: 0 0 0 5;
-    -fx-border-color: #ddd;
-    -fx-padding: 10;
+.confirm-button {
+    -fx-font-size: 18;
 }
 
-.rightbox .details-title > * {
-    -fx-font-size: 24;
+/* .add-remove-button { */
+/*     -fx-background-color: #fff; */
+/*     -fx-font-size: 18; */
+/*     -fx-border-width: 0 2 0 0; */
+/*     -fx-border-color: #aaa; */
+/* } */
+/**/
+/* .connect-button { */
+/*     -fx-background-color: #fff; */
+/*     -fx-font-size: 18; */
+/*     -fx-border-width: 0 2 0 0; */
+/*     -fx-border-color: #aaa; */
+/* } */
+
+.schedule-field {
+    -fx-font-size: 18;
+    -fx-border-width: 1;
+    -fx-border-color: #aaa;
+    -fx-background-insets: 0;
 }
 
-.rightbox .details > * {
-    -fx-font-size: 18
+.dialog-text-field {
+    -fx-font-size: 14;
+    -fx-border-width: 1;
+    -fx-border-color: #aaa;
+    -fx-background-insets: 0;
+}
+
+.dialog-label {
+    -fx-font-size: 14;
 }
 
 .centerbox {
-    -fx-border-width: 5;
+    -fx-border-width: 0 0 0 2;
+    -fx-border-color: #aaa;
 }
 
-.current-task {
-    -fx-font-size: 32;
-    -fx-alignment: center;
-}
+/* .current-task { */
+/*     -fx-font-size: 32; */
+/*     -fx-alignment: center; */
+/* } */
 
 .main-label {
     -fx-font-size: 32px;
     -fx-text-alignment: center;
     -fx-alignment: center;
     -fx-background-color: #eee;
-    -fx-border-color: #000;
+    -fx-border-color: #aaa;
     -fx-border-width: 0 0 2 0;
 }
 
