@@ -102,8 +102,10 @@ public class Server implements Closeable, Runnable {
                         try {
                             user = DatabaseHandler.userLogin(split[0], split[1]).getId();
                             tf = new TimeFrame(user);
-                        } catch(FailedLoginException e) {
+                            out.writeObject("good");
+                        } catch (FailedLoginException e) {
                             System.out.println("Wrong password");
+                            out.writeObject("wrong_pass");
                         }
                         break;
                 }
