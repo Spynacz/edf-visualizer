@@ -33,6 +33,14 @@ public class Main {
                             e.printStackTrace();
                         }
                         break;
+                    case 'u':
+                        Client.getOutput().writeUTF(line);
+                        try {
+                            System.out.println((String)Client.getInput().readObject());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     default:
                         Client.getOutput().writeUTF(line);
                         break;

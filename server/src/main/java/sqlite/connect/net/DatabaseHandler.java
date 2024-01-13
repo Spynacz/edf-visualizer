@@ -11,8 +11,15 @@ import org.fhdmma.edf.TimeFrame;
 import org.fhdmma.edf.User;
 
 public class DatabaseHandler {
+    public static boolean exists() {
+        return Database.exists();
+    }
+
     public static void connect() throws SQLException {
         Database.connect();
+    }
+
+    public static void init() throws SQLException {
         Database.createDatabase();
     }
 
@@ -56,17 +63,13 @@ public class DatabaseHandler {
         }
     }
 
-    public static Task addTask(long timeframe_id, int duration, int period) {
-        return Database.insertTask(timeframe_id, duration, period);
-    }
-
-    public static Task addTask(long timeframe_id, Task task) {
-        return Database.insertTask(timeframe_id, task.getId(), task.getDuration(), task.getPeriod());
+    public static void addTask(long timeframe_id, Task t) {
+        Database.insertTask(timeframe_id, t);
     }
 
     private static void addTaskList(long timeframe_id, HashMap<Long, Task> tasks) {
         for (Task task : tasks.values()) {
-            Database.insertTask(timeframe_id, task.getDuration(), task.getPeriod());
+            Database.insertTask(timeframe_id, task);
         }
     }
 
@@ -82,9 +85,9 @@ public class DatabaseHandler {
         return Database.retrieveLatestTask();
     }
 
-    // public static TimeFrame getLatestTimeFrame() throws SQLException {
-    // return Database.retrieveLatestTimeFrame();
-    // }
+    public static TimeFrame getLatestTimeFrame(int uid) throws SQLException {
+        return Database.retrieveLatestTimeFrame(uid);
+    }
 
     public static void printTasks() throws SQLException {
         Database.printTasks();

@@ -16,6 +16,14 @@ public class Main {
     public static void main(String[] args) {
         ExecutorService exe = Executors.newFixedThreadPool(10);
         saveList = new LinkedList<>();
+        try {
+            DatabaseHandler.connect();
+            if(!DatabaseHandler.exists()) {
+                DatabaseHandler.init();
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         try {
             var s = new ServerSocket(9999);
@@ -26,9 +34,14 @@ public class Main {
             System.out.println("Cannot start server");
         }
 
-        while (true) {
-            if (!saveList.isEmpty())
+        while(true) {
+            if (!saveList.isEmpty()) {
                 save();
+            } else {
+                try {
+                    Thread.sleep(100);
+                } catch(Exception e) {}
+            }
         }
     }
 
@@ -38,9 +51,8 @@ public class Main {
 
     private static void save() {
         try {
-            if (DatabaseHandler.isValid())
+            if(DatabaseHandler.isValid())
                 DatabaseHandler.connect();
-
             DatabaseHandler.addTimeFrame(saveList.remove());
         } catch (SQLException e) {
             e.printStackTrace();

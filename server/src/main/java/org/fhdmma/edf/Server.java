@@ -21,13 +21,10 @@ public class Server implements Closeable, Runnable {
     private ObjectOutputStream out = null;
     private DataInputStream in = null;
     private int user = -1;
+    private ServerSocket ssocket = null;
 
-    public Server(ServerSocket server) throws IOException {
-        socket = server.accept();
-        System.out.println("Client connected");
-        in = new DataInputStream(new BufferedInputStream(
-                socket.getInputStream()));
-        out = new ObjectOutputStream(socket.getOutputStream());
+    public Server(ServerSocket server) {
+        ssocket = server;
     }
 
     public void run() {
@@ -37,6 +34,16 @@ public class Server implements Closeable, Runnable {
         Task task = null;
         String[] split = null;
         String str = null;
+
+        try {
+            socket = ssocket.accept();
+            System.out.println("Client connected");
+            in = new DataInputStream(new BufferedInputStream(
+                    socket.getInputStream()));
+            out = new ObjectOutputStream(socket.getOutputStream());
+        } catch(IOException e) {
+            System.out.println("Client couldn't connect to server");
+        }
 
         try {
             DatabaseHandler.connect();
@@ -73,7 +80,7 @@ public class Server implements Closeable, Runnable {
                                 tf = new TimeFrame(tf, changes);
                                 Main.saveTimeFrame(tf);
                                 changes.clear();
-                                out.writeObject(tf.getCurrentTask());
+                                out.writeObject(tf);
                             }
                         }
                         break;
@@ -101,7 +108,12 @@ public class Server implements Closeable, Runnable {
                         split = line.substring(1).split(",");
                         try {
                             user = DatabaseHandler.userLogin(split[0], split[1]).getId();
-                            tf = new TimeFrame(user);
+                            tf = DatabaseHandler.getLatestTimeFrame(user);
+                            System.out.println(tf);
+                            if(tf == null) {
+                                tf = new TimeFrame(user);
+                            }
+                            changes.clear();
                             out.writeObject("good");
                         } catch (FailedLoginException e) {
                             System.out.println("Wrong password");

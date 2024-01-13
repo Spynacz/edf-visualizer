@@ -51,6 +51,7 @@ mvnw.cmd
 
 # database
 server/server.db
+server/server.db-journal
 
 # vscode
 .vscode
