@@ -20,7 +20,7 @@ public class Client {
     private static int port = 9999;
     private static DataOutputStream out;
     private static ObjectInputStream in;
-    private static List<Long> timeframes = new ArrayList<>();
+    private static List<TimeFrame> timeframes = new ArrayList<>();
 
     public static void connect(String address, String username, String password)
             throws IOException, UnknownHostException, FailedLoginException {
@@ -68,9 +68,16 @@ public class Client {
         out.writeUTF("n" + num);
 
         for (int i = 0; i < num; i++) {
-            timeframes.add((Long) Client.getInput().readObject());
+            timeframes.add((TimeFrame) Client.getInput().readObject());
         }
-        return timeframes;
+
+
+        List<Long> schedule = new ArrayList<>();
+        for (TimeFrame tf : timeframes) {
+            schedule.add(tf.getCurrentTask());
+        }
+
+        return schedule;
     }
 
     public static ObjectInputStream getInput() {
