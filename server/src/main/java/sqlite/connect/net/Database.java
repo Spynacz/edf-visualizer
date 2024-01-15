@@ -21,8 +21,7 @@ class Database {
     static Statement statement;
 
     public static boolean exists() {
-        File f = new File("server.db");
-        return f.exists() && !f.isDirectory();
+        return (new File("sever.db")).isFile();
     }
 
     public static void connect() throws SQLException {

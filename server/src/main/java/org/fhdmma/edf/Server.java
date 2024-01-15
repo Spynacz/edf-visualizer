@@ -49,16 +49,7 @@ public class Server implements Closeable, Runnable {
             DatabaseHandler.connect();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Database error, shutting down connection");
-
-            try {
-                if (DatabaseHandler.isValid())
-                    DatabaseHandler.disconnect();
-            } catch (SQLException err) {
-                e.printStackTrace();
-                System.out.println("Couldn't check DB connection - not closing");
-            }
-
+            System.out.println("Database error");
             try {
                 close();
             } catch (IOException err) {
@@ -123,12 +114,6 @@ public class Server implements Closeable, Runnable {
                 }
             } catch (EOFException e) {
                 try {
-                    try {
-                        DatabaseHandler.disconnect();
-                    } catch (SQLException err) {
-                        err.printStackTrace();
-                        System.out.println("Couldn't disconnect from DB");
-                    }
                     close();
                 } catch (IOException err) {
                     err.printStackTrace();
@@ -136,12 +121,6 @@ public class Server implements Closeable, Runnable {
                 return;
             } catch (SocketException e) {
                 System.out.println("Client disconnected");
-                try {
-                    DatabaseHandler.disconnect();
-                } catch (SQLException err) {
-                    err.printStackTrace();
-                    System.out.println("Couldn't disconnect from DB");
-                }
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
