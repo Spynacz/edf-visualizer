@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -94,7 +93,7 @@ public class ViewBuilder implements Builder<Region> {
         yAxis.setAutoRanging(false);
         yAxis.setCategories(model.getTaskListNames());
 
-        ScatterChart<Number, String> chart = new ScatterChart<>(xAxis, yAxis);
+        TimelineChart chart = new TimelineChart(xAxis, yAxis);
         chart.setTitle("Task execution history");
         chart.setLegendVisible(false);
 
@@ -198,9 +197,13 @@ public class ViewBuilder implements Builder<Region> {
     }
 
     private Node setAddTaskDialog(Consumer<Runnable> addTask, Stage stage) {
-        Node periodText = boundIntegerField(model.periodProperty(), "Period");
-        Node durationText = boundIntegerField(model.durationProperty(), "Duration", periodText);
-        Node titleText = boundTextField(model.titleProperty(), "Title", durationText);
+        TextField periodText = (TextField) boundIntegerField(model.periodProperty(), "Period");
+        TextField durationText = (TextField) boundIntegerField(model.durationProperty(), "Duration", periodText);
+        TextField titleText = (TextField) boundTextField(model.titleProperty(), "Title", durationText);
+
+        periodText.clear();
+        durationText.clear();
+        titleText.clear();
 
         periodText.getStyleClass().add("dialog-text-field");
         durationText.getStyleClass().add("dialog-text-field");
@@ -244,6 +247,7 @@ public class ViewBuilder implements Builder<Region> {
 
         button.setDefaultButton(true);
         button.getStyleClass().add("button");
+        button.getStyleClass().add("schedule-button");
         button.setMaxWidth(99999);
 
         HBox schedule = new HBox(text, button);

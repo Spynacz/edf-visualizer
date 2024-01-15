@@ -128,11 +128,12 @@ public class Interactor {
     }
 
     public void updateChartModel() {
+        model.getChartData().clear();
         for (Task t : model.getTaskList()) {
             ObservableList<XYChart.Data<Number, String>> seriesData = FXCollections.observableArrayList();
             for (int i = 0; i < model.getSchedule().size(); i++) {
                 if (t.getId() == model.getSchedule().get(i))
-                    seriesData.add(new XYChart.Data<>(i, t.getName()));
+                    seriesData.add(new XYChart.Data<>(i, t.getName(), new TimelineChart.ExtraData("chart-style")));
             }
             model.getChartData().add(new XYChart.Series<>(seriesData));
         }
