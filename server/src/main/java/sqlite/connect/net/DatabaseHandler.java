@@ -78,6 +78,7 @@ public class DatabaseHandler {
         addTaskList(tf.getId(), tf.getTasks());
         addPeriodList(tf.getId(), tf.getNextPeriod());
         addStateList(tf.getId(), tf.getStates());
+        System.out.println(tf.getChanges());
         addChangeList(tf.getId(), tf.getChanges());
     }
 

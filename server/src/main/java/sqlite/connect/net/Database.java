@@ -111,6 +111,7 @@ class Database {
             ps.setLong(1, timeframe_id);
             ps.setLong(2, task_id);
             ps.setString(3, action);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -189,120 +190,6 @@ class Database {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static void addActions(long timeframe_id, List<TimeFrame.Action> actions) {
-        try (PreparedStatement ps = connection
-                .prepareStatement("INSERT OR IGNORE INTO actions(timeframe_id, task_id, action) VALUES(?, ?, ?);")) {
-            ps.setLong(1, timeframe_id);
-
-            for (TimeFrame.Action action : actions) {
-                if (action instanceof TimeFrame.AddTask) {
-                    ps.setLong(2, ((TimeFrame.AddTask) action).task.getId());
-                    ps.setString(3, "ADD");
-                } else if (action instanceof TimeFrame.RemoveTask) {
-                    ps.setLong(2, ((TimeFrame.RemoveTask) action).id);
-                    ps.setString(3, "REMOVE");
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void addPeriodList(long timeframe_id, HashMap<Long, Integer> periods) {
-        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO periods VALUES(?, ?, ?);")) {
-            ps.setLong(1, timeframe_id);
-
-            for (HashMap.Entry<Long, Integer> period : periods.entrySet()) {
-                ps.setLong(2, period.getKey());
-                ps.setInt(3, period.getValue());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void addStateList(long timeframe_id, HashMap<Long, TimeFrame.State> states) {
-        try (PreparedStatement ps = connection.prepareStatement("INSERT OR IGNORE INTO states VALUES(?, ?, ?);")) {
-            ps.setLong(1, timeframe_id);
-
-            for (HashMap.Entry<Long, TimeFrame.State> state : states.entrySet()) {
-                ps.setLong(2, state.getKey());
-                ps.setString(3, state.getValue().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Task addTask(long timeframe_id, int duration, int period) {
-        try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO tasks(duration, period) VALUES(?, ?)",
-                    Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, duration);
-            ps.setInt(2, period);
-            ps.executeUpdate();
-
-            try {
-                // TODO: Race condition possible.
-                ps = connection
-                    .prepareStatement("SELECT id, duration, period FROM tasks WHERE duration = ? AND period = ? " +
-                            "ORDER BY id DESC LIMIT 1");
-                ps.setInt(1, duration);
-                ps.setInt(2, period);
-
-                ResultSet rs = ps.executeQuery();
-
-                if (!rs.next()) {
-                    return null;
-                }
-
-                Task task = new Task(rs.getLong("id"), rs.getInt("duration"), rs.getInt("period"));
-                try {
-                    ps = connection.prepareStatement("INSERT OR IGNORE INTO timeframes_tasks VALUES(?, ?)");
-                    ps.setLong(1, timeframe_id);
-                    ps.setLong(2, task.getId());
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-
-                return new Task(rs.getLong("id"), rs.getInt("duration"), rs.getInt("period"));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void addTaskList(long timeframe_id, HashMap<Long, Task> tasks) {
-        for (Task task : tasks.values()) {
-            addTask(timeframe_id, task.getDuration(), task.getPeriod());
-        }
-    }
-
-    public static void addTimeFrame(TimeFrame tf) {
-        try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?, ?)");
-            ps.setLong(1, tf.getId());
-            ps.setLong(2, tf.getUser());
-            ps.setLong(3, tf.getParent());
-            ps.setLong(4, tf.getCurrentTask());
-            ps.setInt(5, tf.getTimeLeft());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        addTaskList(tf.getId(), tf.getTasks());
-        addPeriodList(tf.getId(), tf.getNextPeriod());
-        addStateList(tf.getId(), tf.getStates());
-        addActions(tf.getId(), tf.getChanges());
     }
 
     public static List<TimeFrame.Action> retrieveChanges(long timeframe_id) {

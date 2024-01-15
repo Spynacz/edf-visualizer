@@ -3,6 +3,7 @@ package org.fhdmma.edf;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedList;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,7 +49,7 @@ public class TimeFrame implements Serializable {
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
         tasks = new HashMap<>();
-        changes = null;
+        changes = new LinkedList<>();
 
         for (var task : t) {
             tasks.put(task.getId(), task);
@@ -63,7 +64,7 @@ public class TimeFrame implements Serializable {
         tasks = new HashMap<>();
         states = new HashMap<>();
         nextPeriod = new HashMap<>();
-        changes = null;
+        changes = new LinkedList<>();
         currentTask = -1;
         timeLeft = 0;
         parent = -1;
@@ -73,7 +74,7 @@ public class TimeFrame implements Serializable {
     TimeFrame(TimeFrame tf, List<Action> l) {
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
-        changes = l;
+        changes = new LinkedList(l);
         user = tf.user;
         parent = tf.getId();
         id = generateId();
