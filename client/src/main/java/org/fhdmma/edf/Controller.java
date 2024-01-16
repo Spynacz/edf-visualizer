@@ -35,7 +35,7 @@ public class Controller {
             interactor.updateConnectionErrorModel();
             interactor.updateConnectButtonLabel("Disconnect");
             interactor.updateConnectedModel(true);
-            interactor.clearTasks();
+            interactor.updateTaskListModel();
             connectSuccessGUIUpdate.run();
         });
         connectTask.setOnFailed(evt -> {
@@ -56,6 +56,8 @@ public class Controller {
         disconnectTask.setOnSucceeded(evt -> {
             interactor.updateConnectButtonLabel("Connect");
             interactor.updateConnectedModel(false);
+            interactor.clearSchedule();
+            interactor.clearTasks();
         });
         Thread disconnectTaskThread = new Thread(disconnectTask);
         disconnectTaskThread.start();

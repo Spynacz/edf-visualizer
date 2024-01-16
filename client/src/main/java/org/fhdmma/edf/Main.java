@@ -33,4 +33,9 @@ public class Main extends Application {
     public static void clearTasks() {
         tasks.clear();
     }
+
+    public static void setTasks(List<Task> list) {
+        tasks.clear();
+        tasks.addAll(list);
+    }
 }

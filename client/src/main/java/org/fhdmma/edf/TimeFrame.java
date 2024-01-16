@@ -39,7 +39,7 @@ public class TimeFrame implements Serializable {
     final private long parent;
     private long currentTask;
     private int timeLeft;
-    final private int user;
+    final private long user;
 
     // TimeFrame(int u, List<Task> t) {
     //     user = u;

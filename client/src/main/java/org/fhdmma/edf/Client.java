@@ -40,11 +40,18 @@ public class Client {
             e.printStackTrace();
         }
         timeframes.clear();
+
+        try {
+            List<Task> userTasks = (List<Task>) in.readObject();
+            Main.setTasks(userTasks);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void sendTask(Task task) {
         try {
-            out.writeUTF("a" + task.getDuration() + "," + task.getPeriod());
+            out.writeUTF("a" + task.getName() + "," + task.getDuration() + "," + task.getPeriod());
             Task serverTask = (Task) in.readObject();
             Task retTask = new Task(serverTask.getId(), task.getName(), serverTask.getDuration(),
                     serverTask.getPeriod());
@@ -70,7 +77,6 @@ public class Client {
         for (int i = 0; i < num; i++) {
             timeframes.add((TimeFrame) Client.getInput().readObject());
         }
-
 
         List<Long> schedule = new ArrayList<>();
         for (TimeFrame tf : timeframes) {
