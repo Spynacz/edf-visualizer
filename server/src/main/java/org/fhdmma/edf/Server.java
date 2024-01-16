@@ -21,10 +21,9 @@ public class Server implements Closeable, Runnable {
     private ObjectOutputStream out = null;
     private DataInputStream in = null;
     private int user = -1;
-    private ServerSocket ssocket = null;
 
-    public Server(ServerSocket server) {
-        ssocket = server;
+    public Server(Socket s) {
+        socket = s;
     }
 
     public void run() {
@@ -36,8 +35,6 @@ public class Server implements Closeable, Runnable {
         String str = null;
 
         try {
-            socket = ssocket.accept();
-            System.out.println("Client connected");
             in = new DataInputStream(new BufferedInputStream(
                     socket.getInputStream()));
             out = new ObjectOutputStream(socket.getOutputStream());
