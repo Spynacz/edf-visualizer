@@ -80,6 +80,10 @@ public class Client {
         return schedule;
     }
 
+    public static void clearSchedule() {
+        timeframes.clear();
+    }
+
     public static ObjectInputStream getInput() {
         return in;
     }

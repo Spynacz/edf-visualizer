@@ -38,15 +38,17 @@ public class ViewBuilder implements Builder<Region> {
     private final Consumer<Runnable> connector;
     private final Runnable disconnector;
     private final Runnable tasksScheduler;
+    private final Runnable scheduleCleaner;
 
     public ViewBuilder(Model model, Consumer<Runnable> taskAdder, Consumer<Runnable> taskRemover,
-            Consumer<Runnable> connector, Runnable disconnector, Runnable taskScheduler) {
+            Consumer<Runnable> connector, Runnable disconnector, Runnable taskScheduler, Runnable scheduleCleaner) {
         this.model = model;
         this.taskAdder = taskAdder;
         this.connector = connector;
         this.disconnector = disconnector;
         this.taskRemover = taskRemover;
         this.tasksScheduler = taskScheduler;
+        this.scheduleCleaner = scheduleCleaner;
     }
 
     @Override
@@ -68,6 +70,7 @@ public class ViewBuilder implements Builder<Region> {
         vbox.getChildren().add(setAddTaskButton());
         vbox.getChildren().add(setRemoveTaskButton(taskRemover));
         vbox.getChildren().add(setScheduleSection(tasksScheduler));
+        vbox.getChildren().add(setClearScheduleButton(scheduleCleaner));
         vbox.getChildren().add(setConnectButton(disconnector));
 
         vbox.getStyleClass().add("leftbox");
@@ -254,6 +257,19 @@ public class ViewBuilder implements Builder<Region> {
         HBox.setHgrow(schedule.getChildren().get(1), Priority.ALWAYS);
 
         return schedule;
+    }
+
+    private Node setClearScheduleButton(Runnable clearSchedule) {
+        Button button = new Button("Clear schedule");
+        button.disableProperty().bind(model.connectedProperty().not());
+
+        button.setOnAction(evt -> {
+            clearSchedule.run();
+        });
+
+        button.getStyleClass().add("button");
+
+        return button;
     }
 
     private Node setConnectButton(Runnable disconnect) {

@@ -16,7 +16,8 @@ public class Controller {
     public Controller() {
         Model model = new Model();
         this.interactor = new Interactor(model);
-        this.viewBuilder = new ViewBuilder(model, this::addTask, this::removeTask, this::connectToServer, this::disconnectFromServer, this::scheduleTasks);
+        this.viewBuilder = new ViewBuilder(model, this::addTask, this::removeTask, this::connectToServer,
+                this::disconnectFromServer, this::scheduleTasks, this::clearSchedule);
 
         // temporary
         interactor.updateTaskListModel();
@@ -105,6 +106,21 @@ public class Controller {
         });
         Thread scheduleTasksThread = new Thread(scheduleTasksTask);
         scheduleTasksThread.start();
+    }
+
+    private void clearSchedule() {
+        Task<Void> clearScheduleTask = new Task<>() {
+            @Override
+            protected Void call() {
+                interactor.clearSchedule();
+                return null;
+            }
+        };
+        clearScheduleTask.setOnSucceeded(evt -> {
+            interactor.updateChartModel();
+        });
+        Thread clearScheduleThread = new Thread(clearScheduleTask);
+        clearScheduleThread.start();
     }
 
     public Region getView() {

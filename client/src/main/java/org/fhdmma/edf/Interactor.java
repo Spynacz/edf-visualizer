@@ -127,6 +127,11 @@ public class Interactor {
         }
     }
 
+    public void clearSchedule() {
+        model.getSchedule().clear();
+        Client.clearSchedule();
+    }
+
     public void updateChartModel() {
         model.getChartData().clear();
         for (Task t : model.getTaskList()) {
