@@ -89,15 +89,11 @@ public class DatabaseHandler {
         return Database.retrieveLatestTimeFrame(uid);
     }
 
-    public static void printTasks() throws SQLException {
-        Database.printTasks();
-    }
-
-    public static void printTimeFrames() throws SQLException {
-        Database.printTimeFrames();
-    }
-
     public static List<Task> getUserTasks(long uid) {
         return Database.retrieveTasksByUserId(uid);
+    }
+
+    public static void removeTask(long taskId) {
+        Database.deleteTaskById(taskId);
     }
 }

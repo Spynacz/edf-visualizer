@@ -403,4 +403,13 @@ class Database {
             return null;
         }
     }
+
+    public static void deleteTaskById(long taskId) {
+        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM tasks WHERE id = ?;")) {
+            ps.setLong(1, taskId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

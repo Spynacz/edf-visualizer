@@ -84,6 +84,7 @@ public class Server implements Closeable, Runnable {
                         } else {
                             str = line.substring(1);
                             changes.add(new TimeFrame.RemoveTask(Long.parseLong(str)));
+                            DatabaseHandler.removeTask(Long.parseLong(str));
                         }
                         break;
                     case 'u':

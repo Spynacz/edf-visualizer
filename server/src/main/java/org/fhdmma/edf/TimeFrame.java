@@ -74,7 +74,7 @@ public class TimeFrame implements Serializable {
     TimeFrame(TimeFrame tf, List<Action> l) {
         nextPeriod = new HashMap<>();
         states = new HashMap<>();
-        changes = new LinkedList(l);
+        changes = new LinkedList<>(l);
         user = tf.user;
         parent = tf.getId();
         id = generateId();
