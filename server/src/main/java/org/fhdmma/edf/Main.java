@@ -15,24 +15,25 @@ public class Main {
         ExecutorService exe = Executors.newFixedThreadPool(10);
         saveList = new LinkedList<>();
         try {
-            if(!DatabaseHandler.exists()) {
-                DatabaseHandler.connect();
-                DatabaseHandler.init();
-            } else {
-                DatabaseHandler.connect();
-            }
-        } catch(Exception e) {
+            // if(!DatabaseHandler.exists()) {
+            // DatabaseHandler.connect();
+            // DatabaseHandler.init();
+            // } else {
+            DatabaseHandler.connect();
+            // }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         exe.execute(new ServerFactory(exe));
 
-        while(true) {
+        while (true) {
             if (!saveList.isEmpty()) {
                 save();
             } else {
                 try {
                     Thread.sleep(100);
-                } catch(Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
     }
@@ -43,7 +44,7 @@ public class Main {
 
     private static void save() {
         try {
-            if(DatabaseHandler.isValid())
+            if (DatabaseHandler.isValid())
                 DatabaseHandler.connect();
             DatabaseHandler.addTimeFrame(saveList.remove());
         } catch (SQLException e) {
