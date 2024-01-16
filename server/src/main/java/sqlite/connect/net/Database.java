@@ -172,15 +172,16 @@ class Database {
     }
 
     public static void insertTimeFrame(TimeFrame tf) {
-        try {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?, ?)");
+        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO timeframes VALUES(?, ?, ?, ?, ?)")) {
             ps.setLong(1, tf.getId());
             ps.setLong(2, tf.getUser());
             ps.setLong(3, tf.getParent());
             ps.setLong(4, tf.getCurrentTask());
             ps.setInt(5, tf.getTimeLeft());
             ps.executeUpdate();
-        } catch (SQLException e) {
+        } catch (
+
+        SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -240,9 +241,8 @@ class Database {
     }
 
     public static TimeFrame retrieveLatestTimeFrame(long uid) throws SQLException {
-        try {
-            PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM timeframes WHERE user_id = ? ORDER BY id DESC LIMIT 1");
+        try (PreparedStatement ps = connection
+                .prepareStatement("SELECT * FROM timeframes WHERE user_id = ? ORDER BY id DESC LIMIT 1")) {
             ps.setLong(1, uid);
 
             ResultSet rs = ps.executeQuery();
@@ -326,9 +326,8 @@ class Database {
 
     public static HashMap<Long, Task> retrieveTasksList(long timeframe_id) {
         HashMap<Long, Task> tasks = new HashMap<>();
-        try {
-            PreparedStatement ps = connection
-                    .prepareStatement("SELECT * FROM timeframes_tasks NATURAL JOIN tasks WHERE timeframe_id = ?;");
+        try (PreparedStatement ps = connection
+                .prepareStatement("SELECT * FROM timeframes_tasks NATURAL JOIN tasks WHERE timeframe_id = ?;")) {
             ps.setLong(1, timeframe_id);
 
             ResultSet rs = ps.executeQuery();
