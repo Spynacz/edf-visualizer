@@ -97,4 +97,8 @@ public class DatabaseHandler {
     public static void printTimeFrames() throws SQLException {
         Database.printTimeFrames();
     }
+
+    public static List<Task> getUserTasks(int uid) {
+        return Database.retrieveTasksByUserId(uid);
+    }
 }

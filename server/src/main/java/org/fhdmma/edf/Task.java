@@ -2,26 +2,26 @@ package org.fhdmma.edf;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public final class Task implements Serializable {
     final private static long serialVersionUID = 1l;
 
     private final long id;
+    private final String name;
     private final int duration;
     private final int period;
+    private final int userId;
 
-    public Task(long i, int d, int p) {
-        id = i;
-        duration = d;
-        period = p;
-    }
-
-    public Task(int d, int p) {
+    public Task(String n, int d, int p, int u) {
         id = generateId();
+        name = n;
         duration = d;
         period = p;
+        userId = u;
     }
 
     public String toString() {

@@ -38,7 +38,7 @@ public class Server implements Closeable, Runnable {
             in = new DataInputStream(new BufferedInputStream(
                     socket.getInputStream()));
             out = new ObjectOutputStream(socket.getOutputStream());
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.out.println("Client couldn't connect to server");
         }
 
@@ -78,8 +78,8 @@ public class Server implements Closeable, Runnable {
                             out.writeObject(null);
                         } else {
                             split = line.substring(1).split(",");
-                            task = new Task(Integer.parseInt(split[0]),
-                                    Integer.parseInt(split[1]));
+                            task = new Task(split[0], Integer.parseInt(split[1]),
+                                    Integer.parseInt(split[2]), user);
                             changes.add(new TimeFrame.AddTask(task));
                             out.writeObject(task);
                         }
@@ -98,11 +98,13 @@ public class Server implements Closeable, Runnable {
                             user = DatabaseHandler.userLogin(split[0], split[1]).getId();
                             tf = DatabaseHandler.getLatestTimeFrame(user);
                             System.out.println(tf);
-                            if(tf == null) {
+                            if (tf == null) {
                                 tf = new TimeFrame(user);
                             }
                             changes.clear();
                             out.writeObject("good");
+                            List<Task> userTasks = DatabaseHandler.getUserTasks(user);
+                            out.writeObject(userTasks);
                         } catch (FailedLoginException e) {
                             System.out.println("Wrong password");
                             out.writeObject("wrong_pass");
