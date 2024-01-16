@@ -178,6 +178,7 @@ public class ViewBuilder implements Builder<Region> {
             Scene dialogScene = new Scene(borderPane);
             dialog.setScene(dialogScene);
             dialog.setResizable(false);
+            dialog.setAlwaysOnTop(true);
             dialog.show();
         });
 
@@ -296,6 +297,7 @@ public class ViewBuilder implements Builder<Region> {
                 Scene dialogScene = new Scene(borderPane);
                 dialog.setScene(dialogScene);
                 dialog.setResizable(false);
+                dialog.setAlwaysOnTop(true);
                 dialog.show();
             }
         });
