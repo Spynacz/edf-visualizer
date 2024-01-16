@@ -49,7 +49,6 @@ public class Main {
             DatabaseHandler.addTimeFrame(saveList.remove());
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Couldn't add timeframe to DB");
         }
     }
 }

@@ -17,14 +17,12 @@ public class ServerFactory implements Runnable {
         socket = new ServerSocket(9999);
         } catch(IOException e) {
             e.printStackTrace();
-            System.out.println("Couldn't create server");
             return;
         }
         while(true) {
             try {
                 exe.execute(new Server(socket.accept()));
             } catch(IOException e) {
-                System.out.println("Client couldn't connect to server");
             }
         }
     }

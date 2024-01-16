@@ -39,19 +39,16 @@ public class Server implements Closeable, Runnable {
                     socket.getInputStream()));
             out = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            System.out.println("Client couldn't connect to server");
         }
 
         try {
             DatabaseHandler.connect();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Database error");
             try {
                 close();
             } catch (IOException err) {
                 e.printStackTrace();
-                System.out.println("Couldn't close socket");
             }
             return;
         }
@@ -62,7 +59,6 @@ public class Server implements Closeable, Runnable {
                 switch (line.charAt(0)) {
                     case 'n':
                         if (user == -1) {
-                            System.out.println("User not logged in");
                         } else {
                             for (int i = 0; i < Integer.parseInt(line.substring(1)); i++) {
                                 tf = new TimeFrame(tf, changes);
@@ -74,7 +70,6 @@ public class Server implements Closeable, Runnable {
                         break;
                     case 'a':
                         if (user == -1) {
-                            System.out.println("User not logged in");
                             out.writeObject(null);
                         } else {
                             split = line.substring(1).split(",");
@@ -86,7 +81,6 @@ public class Server implements Closeable, Runnable {
                         break;
                     case 'r':
                         if (user == -1) {
-                            System.out.println("User not logged in");
                         } else {
                             str = line.substring(1);
                             changes.add(new TimeFrame.RemoveTask(Long.parseLong(str)));
@@ -97,7 +91,6 @@ public class Server implements Closeable, Runnable {
                         try {
                             user = DatabaseHandler.userLogin(split[0], split[1]).getId();
                             tf = DatabaseHandler.getLatestTimeFrame(user);
-                            System.out.println(tf);
                             if (tf == null) {
                                 tf = new TimeFrame(user);
                             }
@@ -106,7 +99,6 @@ public class Server implements Closeable, Runnable {
                             List<Task> userTasks = DatabaseHandler.getUserTasks(user);
                             out.writeObject(userTasks);
                         } catch (FailedLoginException e) {
-                            System.out.println("Wrong password");
                             out.writeObject("wrong_pass");
                         }
                         break;
@@ -119,7 +111,6 @@ public class Server implements Closeable, Runnable {
                 }
                 return;
             } catch (SocketException e) {
-                System.out.println("Client disconnected");
                 return;
             } catch (IOException e) {
                 e.printStackTrace();

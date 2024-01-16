@@ -384,41 +384,6 @@ class Database {
         return null;
     }
 
-    public static void printTasks() throws SQLException {
-        Task t;
-        try (ResultSet rs = statement.executeQuery("SELECT * FROM tasks")) {
-            while (rs.next()) {
-                t = new Task(
-                        rs.getLong("id"),
-                        rs.getString("name"),
-                        rs.getInt("duration"),
-                        rs.getInt("period"),
-                        rs.getInt("user_id"));
-
-                System.out.println(t);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void printTimeFrames() throws SQLException {
-        long curr;
-        String active;
-        try (ResultSet rs = statement.executeQuery("SELECT * FROM timeframes")) {
-            while (rs.next()) {
-                curr = rs.getLong("activeTask");
-                active = ((rs.wasNull()) ? "null" : String.valueOf(curr));
-                System.out.println(
-                        "{ id: " + rs.getLong("id") +
-                                ", activeTask: " + active +
-                                ", timeleft: " + rs.getInt("timeleft") + " }");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static List<Task> retrieveTasksByUserId(long uid) {
         List<Task> taskList = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks WHERE user_id = ?;")) {
