@@ -1,50 +1,102 @@
 package org.fhdmma.edf;
+
 import java.io.DataOutputStream;
-import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.net.ConnectException;
+import java.util.ArrayList;
+import java.util.List;
 
-public final class Client {
+import javax.security.auth.login.FailedLoginException;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class Client {
     private static Socket socket;
-    private static int port;
-    private static String address;
+    private static int port = 9999;
     private static DataOutputStream out;
     private static ObjectInputStream in;
+    private static List<TimeFrame> timeframes = new ArrayList<>();
 
-    private Client() {}
+    public static void connect(String address, String username, String password)
+            throws IOException, UnknownHostException, FailedLoginException {
+        socket = new Socket(address, port);
+        out = new DataOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
 
-    public static void connect() throws IOException, UnknownHostException {
-        while(socket == null || !socket.isConnected()) {
-            try {
-                socket = new Socket("localhost", port);
-                out = new DataOutputStream(socket.getOutputStream());
-                in = new ObjectInputStream(socket.getInputStream());
+        out.writeUTF("u" + username + "," + password);
 
-            } catch (ConnectException e) {}
+        String response = "";
+        try {
+            response = (String) in.readObject();
+            if (response.equals("wrong_pass")) {
+                throw new FailedLoginException("Wrong password");
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-        System.out.println("Connected to server");
+        timeframes.clear();
+
+        try {
+            List<Task> userTasks = (List<Task>) in.readObject();
+            Main.setTasks(userTasks);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendTask(Task task) {
+        try {
+            out.writeUTF("a" + task.getName() + "," + task.getDuration() + "," + task.getPeriod());
+            Task serverTask = (Task) in.readObject();
+            Task retTask = new Task(serverTask.getId(), task.getName(), serverTask.getDuration(),
+                    serverTask.getPeriod());
+            Main.addTask(retTask);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeTask(Long id) {
+        try {
+            out.writeUTF("r" + id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<Long> scheduleTasks(int num) throws IOException, ClassNotFoundException {
+        out.writeUTF("n" + num);
+
+        for (int i = 0; i < num; i++) {
+            timeframes.add((TimeFrame) Client.getInput().readObject());
+        }
+
+        List<Long> schedule = new ArrayList<>();
+        for (TimeFrame tf : timeframes) {
+            schedule.add(tf.getCurrentTask());
+        }
+
+        return schedule;
+    }
+
+    public static void clearSchedule() {
+        timeframes.clear();
+    }
+
+    public static ObjectInputStream getInput() {
+        return in;
     }
 
     public static void disconnect() throws IOException {
         in.close();
         out.close();
         socket.close();
-    }
-
-    public static void setPort(int p) { port = p; }
-    public static void setHost(String a) { address = a; }
-
-    public static DataOutputStream getOutput() throws IOException, UnknownHostException {
-        if(socket == null || !socket.isConnected())
-            connect();
-        return out;
-    }
-
-    public static ObjectInputStream getInput() throws IOException, UnknownHostException {
-        if(socket == null || !socket.isConnected())
-            connect();
-        return in;
     }
 }

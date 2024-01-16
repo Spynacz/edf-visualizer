@@ -1,0 +1,97 @@
+.root {
+    -fx-background-color: #fff;
+}
+
+.chart-style {
+    -fx-background-color: #8555fc;
+}
+
+.leftbox {
+    -fx-background-color: #eee;
+}
+
+.leftbox > * {
+    -fx-pref-width: 250;
+}
+
+.task-list {
+    -fx-background-insets: 0 2 0 0;
+}
+
+.task-list .list-cell:even, .task-list .list-cell:odd {
+    -fx-font-size: 18;
+    -fx-background-color: #fff;
+    -fx-padding: 15;
+    -fx-border-width: 19;
+}
+
+.task-list .list-cell:selected {
+    -fx-background-color: #e8e8e8;
+}
+
+.task-list .list-cell .name {
+    -fx-font-size: 22;
+}
+
+.task-list .list-cell .stats {
+    -fx-font-size: 16;
+}
+
+.button {
+    -fx-background-color: #fff;
+    -fx-font-size: 18;
+    -fx-border-width: 1 1 1 1;
+    -fx-border-color: #aaa;
+    -fx-border-radius: 3;
+}
+
+.button:hover {
+    -fx-background-color: #c2abfc;
+}
+
+.schedule-button {
+    -fx-border-radius: 0 3 3 0;
+}
+
+.confirm-button {
+    -fx-font-size: 18;
+}
+
+.schedule-field {
+    -fx-font-size: 18;
+    -fx-border-width: 1;
+    -fx-border-color: #aaa;
+    -fx-border-radius: 3 0 0 3;
+    -fx-background-insets: 0;
+}
+
+.dialog-text-field {
+    -fx-font-size: 14;
+    -fx-border-width: 1;
+    -fx-border-color: #aaa;
+    -fx-border-radius: 3;
+    -fx-background-insets: 0;
+}
+
+.dialog-label {
+    -fx-font-size: 14;
+}
+
+.centerbox {
+    /* -fx-border-width: 0; */
+    /* -fx-border-color: #aaa; */
+}
+
+.main-label {
+    -fx-font-size: 32px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-background-color: #eee;
+    -fx-border-color: #aaa;
+    -fx-border-width: 0 0 2 0;
+}
+
+.task-entry {
+    -fx-border-width: 2;
+    -fx-border-color: #ff0;
+}

@@ -1,58 +1,41 @@
 package org.fhdmma.edf;
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.BufferedInputStream;
 
-public class Main {
-    private static DataInputStream input = null;
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    static List<Task> tasks = new ArrayList<>();
+
+    @Override
+    public void start(Stage stage) {
+        stage.setScene(new Scene(new Controller().getView(), 1280, 720));
+        stage.show();
+    }
 
     public static void main(String[] args) {
-        input = new DataInputStream(new BufferedInputStream(System.in));
-        Client.setHost("localhost");
-        Client.setPort(9999);
-        String line = "";
-        while (!line.equals(";")) {
-            try {
-                line = input.readLine();
-                switch(line.charAt(0)) {
-                    case 'n':
-                        Client.getOutput().writeUTF(line);
-                        try {
-                            for(int i=0;i<Integer.parseInt(line.substring(1));i++) {
-                                Display.show((TimeFrame)Client.getInput().readObject());
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 'a':
-                        Client.getOutput().writeUTF(line);
-                        try {
-                            System.out.println((Task)Client.getInput().readObject());
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 'u':
-                        Client.getOutput().writeUTF(line);
-                        try {
-                            System.out.println((String)Client.getInput().readObject());
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    default:
-                        Client.getOutput().writeUTF(line);
-                        break;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                try {
-                Client.disconnect();
-                } catch (IOException err) {
-                    err.printStackTrace();
-                }
-            }
-        }
+        launch();
+    }
+
+    // temporary
+    public static void addTask(Task newTask) {
+        tasks.add(newTask);
+    }
+
+    public static void removeTask(Task selectedTask) {
+        tasks.remove(selectedTask);
+    }
+
+    public static void clearTasks() {
+        tasks.clear();
+    }
+
+    public static void setTasks(List<Task> list) {
+        tasks.clear();
+        tasks.addAll(list);
     }
 }
