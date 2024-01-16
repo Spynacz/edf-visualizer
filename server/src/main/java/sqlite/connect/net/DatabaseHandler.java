@@ -86,7 +86,7 @@ public class DatabaseHandler {
         return Database.retrieveLatestTask();
     }
 
-    public static TimeFrame getLatestTimeFrame(int uid) throws SQLException {
+    public static TimeFrame getLatestTimeFrame(long uid) throws SQLException {
         return Database.retrieveLatestTimeFrame(uid);
     }
 

@@ -202,11 +202,11 @@ class Database {
             while (rs.next()) {
                 if (rs.getString("action").equals("ADD")) {
                     list.add(new TimeFrame.AddTask(new Task(
-                                    rs.getInt("task_id"),
+                                    rs.getLong("task_id"),
                                     rs.getInt("duration"),
                                     rs.getInt("period"))));
                 } else if (rs.getString("action").equals("REMOVE")) {
-                    list.add(new TimeFrame.RemoveTask(rs.getInt("task_id")));
+                    list.add(new TimeFrame.RemoveTask(rs.getLong("task_id")));
                 }
             }
             return list;
@@ -223,18 +223,18 @@ class Database {
                 return null;
             }
 
-            return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+            return new Task(rs.getLong("id"), rs.getInt("duration"), rs.getInt("period"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static TimeFrame retrieveLatestTimeFrame(int uid) throws SQLException {
+    public static TimeFrame retrieveLatestTimeFrame(long uid) throws SQLException {
         try {
             PreparedStatement ps = connection.prepareStatement(
                     "SELECT * FROM timeframes WHERE user_id = ? ORDER BY id DESC LIMIT 1");
-            ps.setInt(1, uid);
+            ps.setLong(1, uid);
 
             ResultSet rs = ps.executeQuery();
 
@@ -246,8 +246,8 @@ class Database {
                         retrievePeriod(id),
                         retrieveStates(id),
                         retrieveChanges(id),
-                        rs.getInt("parent_id"),
-                        rs.getInt("active_task"),
+                        rs.getLong("parent_id"),
+                        rs.getLong("active_task"),
                         rs.getInt("time_left"),
                         uid);
             }
@@ -309,7 +309,7 @@ class Database {
                 return null;
             }
 
-            return new Task(rs.getInt("id"), rs.getInt("duration"), rs.getInt("period"));
+            return new Task(rs.getLong("id"), rs.getInt("duration"), rs.getInt("period"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -327,7 +327,7 @@ class Database {
             while (rs.next()) {
                 tasks.put(
                         rs.getLong("task_id"),
-                        new Task(rs.getInt("task_id"), rs.getInt("duration"), rs.getInt("period")));
+                        new Task(rs.getLong("task_id"), rs.getInt("duration"), rs.getInt("period")));
             }
 
             return tasks;
@@ -342,7 +342,7 @@ class Database {
             ps.setString(1, username);
 
             ResultSet rs = ps.executeQuery();
-            int id = rs.getInt("id");
+            long id = rs.getLong("id");
             if(rs.wasNull()) return null;
             String uname = rs.getString("username");
             String pass = rs.getString("password");
@@ -379,7 +379,7 @@ class Database {
         try (ResultSet rs = statement.executeQuery("SELECT * FROM tasks")) {
             while (rs.next()) {
                 t = new Task(
-                        rs.getInt("id"),
+                        rs.getLong("id"),
                         rs.getInt("duration"),
                         rs.getInt("period"));
 
@@ -391,14 +391,14 @@ class Database {
     }
 
     public static void printTimeFrames() throws SQLException {
-        int curr;
+        long curr;
         String active;
         try (ResultSet rs = statement.executeQuery("SELECT * FROM timeframes")) {
             while (rs.next()) {
-                curr = rs.getInt("activeTask");
+                curr = rs.getLong("activeTask");
                 active = ((rs.wasNull()) ? "null" : String.valueOf(curr));
                 System.out.println(
-                        "{ id: " + rs.getInt("id") +
+                        "{ id: " + rs.getLong("id") +
                         ", activeTask: " + active +
                         ", timeleft: " + rs.getInt("timeleft") + " }");
             }
