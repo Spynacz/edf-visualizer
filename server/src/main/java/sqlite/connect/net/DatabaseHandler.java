@@ -98,7 +98,7 @@ public class DatabaseHandler {
         Database.printTimeFrames();
     }
 
-    public static List<Task> getUserTasks(int uid) {
+    public static List<Task> getUserTasks(long uid) {
         return Database.retrieveTasksByUserId(uid);
     }
 }

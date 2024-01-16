@@ -6,12 +6,12 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.security.auth.login.FailedLoginException;
 
 import sqlite.connect.net.DatabaseHandler;
@@ -20,7 +20,7 @@ public class Server implements Closeable, Runnable {
     private Socket socket = null;
     private ObjectOutputStream out = null;
     private DataInputStream in = null;
-    private int user = -1;
+    private long user = -1;
 
     public Server(Socket s) {
         socket = s;
@@ -103,8 +103,7 @@ public class Server implements Closeable, Runnable {
                             }
                             changes.clear();
                             out.writeObject("good");
-                            List<Task> userTasks = DatabaseHandler.getUserTasks(user);
-                            out.writeObject(userTasks);
+                            out.writeObject(tf);
                         } catch (FailedLoginException e) {
                             System.out.println("Wrong password");
                             out.writeObject("wrong_pass");

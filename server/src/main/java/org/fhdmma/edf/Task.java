@@ -14,9 +14,9 @@ public final class Task implements Serializable {
     private final String name;
     private final int duration;
     private final int period;
-    private final int userId;
+    private final long userId;
 
-    public Task(String n, int d, int p, int u) {
+    public Task(String n, int d, int p, long u) {
         id = generateId();
         name = n;
         duration = d;

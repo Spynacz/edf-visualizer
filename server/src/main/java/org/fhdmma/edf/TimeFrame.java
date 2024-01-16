@@ -40,9 +40,9 @@ public class TimeFrame implements Serializable {
     final private long parent;
     private long currentTask;
     private int timeLeft;
-    final private int user;
+    final private long user;
 
-    TimeFrame(int u, List<Task> t) {
+    TimeFrame(long u, List<Task> t) {
         user = u;
         parent = -1;
         id = generateId();
@@ -59,7 +59,7 @@ public class TimeFrame implements Serializable {
         startTask();
     }
 
-    TimeFrame(int u) {
+    TimeFrame(long u) {
         user = u;
         tasks = new HashMap<>();
         states = new HashMap<>();

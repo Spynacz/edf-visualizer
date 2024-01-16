@@ -161,7 +161,7 @@ class Database {
             ps.setInt(2, t.getDuration());
             ps.setInt(3, t.getPeriod());
             ps.setString(4, t.getName());
-            ps.setInt(5, t.getUserId());
+            ps.setLong(5, t.getUserId());
             ps.executeUpdate();
 
             insertM2M(timeframe_id, t.getId());
@@ -352,7 +352,7 @@ class Database {
             ps.setString(1, username);
 
             ResultSet rs = ps.executeQuery();
-            long id = rs.getLong("id");
+            int id = rs.getInt("id");
             if (rs.wasNull())
                 return null;
             String uname = rs.getString("username");
@@ -420,17 +420,17 @@ class Database {
         }
     }
 
-    public static List<Task> retrieveTasksByUserId(int uid) {
+    public static List<Task> retrieveTasksByUserId(long uid) {
         List<Task> taskList = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM tasks WHERE user_id = ?;")) {
-            ps.setInt(1, uid);
+            ps.setLong(1, uid);
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 taskList.add(
                         new Task(rs.getLong("id"), rs.getString("name"), rs.getInt("duration"), rs.getInt("period"),
-                                rs.getInt("user_id")));
+                                rs.getLong("user_id")));
             }
 
             return taskList;
