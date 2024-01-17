@@ -130,7 +130,7 @@ public class TimeFrame implements Serializable {
     }
 
     private long generateId() {
-        return System.currentTimeMillis() * 1000000 + // Trim 3 leading numbers
+        return System.currentTimeMillis() * 1000000 +
                 parent % 1000000 + Utility.rand.nextInt() % 1000000;
     }
 

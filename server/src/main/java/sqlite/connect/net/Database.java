@@ -307,7 +307,6 @@ class Database {
     public static Task retrieveTask(int period, int duration) {
         try (PreparedStatement ps = connection.prepareStatement("SELECT id, duration, period, name FROM tasks " +
                 "WHERE duration = ? AND period = ? ORDER BY id DESC LIMIT 1");) {
-            // TODO: Race condition possible.
             ps.setInt(1, duration);
             ps.setInt(2, period);
 

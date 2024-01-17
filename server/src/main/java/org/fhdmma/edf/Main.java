@@ -15,12 +15,7 @@ public class Main {
         ExecutorService exe = Executors.newFixedThreadPool(10);
         saveList = new LinkedList<>();
         try {
-            // if(!DatabaseHandler.exists()) {
-            // DatabaseHandler.connect();
-            // DatabaseHandler.init();
-            // } else {
             DatabaseHandler.connect();
-            // }
         } catch (Exception e) {
             e.printStackTrace();
         }
