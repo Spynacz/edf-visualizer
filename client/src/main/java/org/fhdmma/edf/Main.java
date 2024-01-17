@@ -21,7 +21,6 @@ public class Main extends Application {
         launch();
     }
 
-    // temporary
     public static void addTask(Task newTask) {
         tasks.add(newTask);
     }

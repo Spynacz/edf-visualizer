@@ -21,7 +21,6 @@ public class Model {
     private final IntegerProperty period = new SimpleIntegerProperty();
     private final ObservableList<Task> taskList = FXCollections.observableArrayList();
     private final ObservableList<String> taskListNames = FXCollections.observableArrayList();
-    // TODO: consider splitting into two models
     private final ObjectProperty<Task> selectedTask = new SimpleObjectProperty<Task>();
     private final StringProperty selectedTitle = new SimpleStringProperty("");
     private final StringProperty selectedDuration = new SimpleStringProperty("");

@@ -77,11 +77,6 @@
     -fx-font-size: 14;
 }
 
-.centerbox {
-    /* -fx-border-width: 0; */
-    /* -fx-border-color: #aaa; */
-}
-
 .main-label {
     -fx-font-size: 32px;
     -fx-text-alignment: center;

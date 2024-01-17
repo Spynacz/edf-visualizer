@@ -19,7 +19,6 @@ public class Controller {
         this.viewBuilder = new ViewBuilder(model, this::addTask, this::removeTask, this::connectToServer,
                 this::disconnectFromServer, this::scheduleTasks, this::clearSchedule);
 
-        // temporary
         interactor.updateTaskListModel();
     }
 

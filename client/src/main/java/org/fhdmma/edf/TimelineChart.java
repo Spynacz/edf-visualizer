@@ -88,8 +88,6 @@ public class TimelineChart extends XYChart<Number, String> {
 
                         rectangle.setWidth(getLength());
                         rectangle.setHeight(getBlockHeight());
-                        // rectangle.setArcHeight(getRadius());
-                        // rectangle.setArcWidth(getRadius());
                         y -= getBlockHeight() / 2.0;
                         x += getShift() / 2.0;
 

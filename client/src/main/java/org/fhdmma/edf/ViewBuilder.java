@@ -104,13 +104,6 @@ public class ViewBuilder implements Builder<Region> {
         return chart;
     }
 
-    // private Node setCurrentTask() {
-    // HBox hbox = new HBox(5, new Label("Current task:"),
-    // boundLabel(model.currentTaskProperty()));
-    // hbox.getStyleClass().add("current-task");
-    // return hbox;
-    // }
-
     private Node setClientTasks() {
         ListView<Task> listView = new ListView<>();
         listView.setItems(model.getTaskList());
