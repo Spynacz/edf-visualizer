@@ -11,12 +11,13 @@ import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.security.auth.login.FailedLoginException;
 
 import sqlite.connect.net.DatabaseHandler;
 
-public class Server implements Closeable, Runnable {
+public class Server implements Closeable, Callable<Integer> {
     private Socket socket = null;
     private ObjectOutputStream out = null;
     private DataInputStream in = null;
@@ -26,7 +27,7 @@ public class Server implements Closeable, Runnable {
         socket = s;
     }
 
-    public void run() {
+    public Integer call() {
         String line = "";
         List<TimeFrame.Action> changes = new LinkedList<>();
         TimeFrame tf = null;
@@ -50,7 +51,7 @@ public class Server implements Closeable, Runnable {
             } catch (IOException err) {
                 e.printStackTrace();
             }
-            return;
+            return -1;
         }
 
         while (!line.equals(";")) {
@@ -107,19 +108,21 @@ public class Server implements Closeable, Runnable {
             } catch (EOFException e) {
                 try {
                     close();
+                    return 1;
                 } catch (IOException err) {
                     err.printStackTrace();
                 }
-                return;
+                return -1;
             } catch (SocketException e) {
-                return;
+                return -1;
             } catch (IOException e) {
                 e.printStackTrace();
-                return;
+                return -1;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        return -1;
     }
 
     public void close() throws IOException {

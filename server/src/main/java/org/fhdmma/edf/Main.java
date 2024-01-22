@@ -1,10 +1,14 @@
 package org.fhdmma.edf;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import sqlite.connect.net.DatabaseHandler;
 
@@ -13,12 +17,14 @@ public class Main {
 
     public static void main(String[] args) {
         ExecutorService exe = Executors.newFixedThreadPool(10);
+
         saveList = new LinkedList<>();
         try {
             DatabaseHandler.connect();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         exe.execute(new ServerFactory(exe));
 
         while (true) {
