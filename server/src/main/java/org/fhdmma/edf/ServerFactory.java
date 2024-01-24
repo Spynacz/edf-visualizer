@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
 
 public class ServerFactory implements Runnable {
     private ExecutorService exe;
-    private List<FutureTask<Integer>> futList = new ArrayList<>();
+    private List<ServerTask> futList = new ArrayList<>();
 
     public ServerFactory(ExecutorService e) {
         exe = e;
@@ -27,23 +25,9 @@ public class ServerFactory implements Runnable {
         while (true) {
             try {
                 Server s = new Server(socket.accept());
-                FutureTask<Integer> ft = new FutureTask<Integer>(s) {
-
-                    @Override
-                    protected void done() {
-                        try {
-                            Integer res = this.get();
-                            if (res == 1)
-                                System.out.println("Client disconnected normally");
-                            else if (res == -1)
-                                System.out.println("Server encountered unknown error");
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                futList.add(ft);
-                exe.execute(ft);
+                ServerTask st = new ServerTask(s);
+                futList.add(st);
+                exe.execute(st);
             } catch (IOException e) {
                 e.printStackTrace();
             }
